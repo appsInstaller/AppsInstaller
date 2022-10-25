@@ -1,0 +1,1444 @@
+@charset "UTF-8";
+@font-face {
+  font-family: "OpenSans";
+  src: url("./font/OpenSans-Regular.woff");
+}
+html {
+  scroll-behavior: smooth;
+  overflow: hidden;
+}
+
+body {
+  font-family: "OpenSans";
+}
+
+input[type=search]::-webkit-search-decoration,
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-results-button,
+input[type=search]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 3px; /* width of vertical scrollbar */
+  height: 3px; /* height of horizontal scrollbar ← You're missing this */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 0.9rem;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #A40FFF;
+  border-radius: 0.9rem;
+}
+
+:root {
+  --title_bar_height: 6vh;
+  --header_height: 7vh;
+  --list_height: 81vh;
+  --bottom_height: 6vh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  color: #f8f8f8;
+  font-size: 0.9rem;
+}
+
+input[type=file],
+input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
+  cursor: pointer;
+}
+
+.normal_svg, .main_svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes animateStatus {
+  0% {
+    background-position: 0%;
+  }
+  100% {
+    background-position: -300%;
+  }
+}
+@keyframes upAdown {
+  0% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-5px);
+  }
+  40%, 100% {
+    transform: translateY(0px);
+  }
+}
+.main_svg {
+  fill: #f8f8f8;
+}
+
+.normal_svg {
+  fill: #f8f8f8;
+}
+
+.window {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: none;
+}
+.window.loaded .loading_screen {
+  display: none;
+}
+.window .loading_screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #2d2d2d;
+  z-index: 10000;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.window .loading_screen .logo {
+  width: 13rem;
+  height: 13rem;
+}
+.window .loading_screen .logo svg g {
+  fill: #A40FFF;
+}
+
+.loader {
+  border: 3px solid transparent; /* Light grey */
+  border-top: 3px solid #A40FFF; /* Blue */
+  border-radius: 50%;
+  animation: spin 1s ease-in infinite;
+  opacity: 0;
+  visibility: hidden;
+  width: 1.3rem;
+  height: 1.3rem;
+  transition: opacity 0.1s, visibility 0.1s;
+}
+.loader.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.splash_screen {
+  background-color: #282828;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.email_form_popUp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 5000;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.1s;
+}
+.email_form_popUp.show {
+  opacity: 1;
+  visibility: visible;
+}
+.email_form_popUp.show form {
+  transform: translateY(0%);
+}
+.email_form_popUp form {
+  width: 40%;
+  -webkit-app-region: no-drag;
+  font-size: 0.99rem;
+  background-color: #2d2d2d;
+  padding: 0.75rem;
+  border-radius: 0.54rem;
+  border-top-left-radius: none;
+  border-top-right-radius: none;
+  transform: translateY(-60%);
+  transition: all 0.1s ease-in;
+}
+.email_form_popUp form .form_header {
+  border-radius: 0.54rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 0.75rem 0;
+}
+.email_form_popUp form .form_header .add_attachment_container {
+  position: relative;
+}
+.email_form_popUp form .form_header .add_attachment_container #add_attachment_input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+.email_form_popUp form .form_header .add_attachment_container .add_attachment {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  font-size: 1.08rem;
+}
+.email_form_popUp form .form_header .add_attachment_container .add_attachment:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.email_form_popUp form .form_header .select_mail_types {
+  border-radius: inherit;
+  position: relative;
+  width: 25%;
+  cursor: pointer;
+}
+.email_form_popUp form .form_header .select_mail_types span {
+  display: inline-block;
+  font-size: 1.26rem;
+  padding: 0.3rem 0.15rem;
+  width: 100%;
+  user-select: none;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: inherit;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown.show {
+  display: block;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span {
+  border-radius: none !important;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span:first-child {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span:last-child {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.email_form_popUp form .form_header .select_mail_types .mail_type_value {
+  position: relative;
+  width: 100%;
+}
+.email_form_popUp form .form_header .select_mail_types .mail_type_value::before {
+  content: "";
+  position: absolute;
+  top: 55%;
+  left: 90%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 0.4em;
+  height: 0.4em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.email_form_popUp form .form_header .select_mail_types .mail_type_value::after {
+  content: "";
+  position: absolute;
+  top: 55%;
+  left: 90%;
+  transform: translate(-50%, -50%);
+  width: 0.7em;
+  height: 2px;
+  background-color: #282828;
+}
+.email_form_popUp form .form_contents {
+  border-radius: 0.54rem;
+  background-color: #282828;
+  padding: 0.75rem;
+}
+.email_form_popUp form .form_contents .attchments {
+  position: relative;
+  border-radius: inherit;
+  height: 100px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.email_form_popUp form .form_contents .attchments::-webkit-scrollbar {
+  display: none;
+}
+.email_form_popUp form .form_contents .attchments .attachment {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 70px;
+  margin-top: 15px;
+  border-radius: inherit;
+  margin-right: 0.75rem;
+}
+.email_form_popUp form .form_contents .attchments .attachment .attachment_content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.email_form_popUp form .form_contents .attchments .attachment .attachment_content:not([data-has_file=true])::before {
+  content: attr(data-attachment_type);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: inherit;
+  font-size: 1.44rem;
+  color: #CBC7C7;
+  font-weight: bolder;
+}
+.email_form_popUp form .form_contents .attchments .attachment .attachment_content img {
+  width: inherit;
+  height: inherit;
+  border-radius: inherit;
+}
+.email_form_popUp form .form_contents .attchments .attachment .remove_attachment_btn {
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #424242;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.email_form_popUp form .form_contents .attchments .attachment .remove_attachment_btn svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.email_form_popUp form .form_contents textarea {
+  position: relative;
+  resize: none;
+  font-size: 0.99rem;
+  padding: 0.75rem;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  width: 100%;
+}
+.email_form_popUp form .form_contents textarea.require {
+  border: 1px solid #ff0909;
+}
+.email_form_popUp form .form_contents .form_bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.email_form_popUp form .form_contents .form_bottom p {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+}
+.email_form_popUp form .form_contents .form_bottom p span.warning {
+  color: #CBC7C7;
+}
+.email_form_popUp form .form_contents .form_bottom p span.warning span {
+  color: #CBC7C7;
+  padding: 0 0.15rem;
+}
+.email_form_popUp form .form_contents .form_bottom .form_buttons button {
+  font-size: 1.08rem;
+  border-radius: 0.54rem;
+}
+.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=submit] {
+  background: #A40FFF;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+}
+.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=submit]:hover {
+  background-color: #A40FFF;
+}
+.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=submit].disabled {
+  filter: brightness(60%);
+  pointer-events: none;
+}
+.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=object] {
+  margin-right: 0.375rem;
+  color: #CBC7C7;
+  background: transparent;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+}
+.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=object]:hover {
+  background-color: transparent;
+}
+
+.titleBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--title_bar_height);
+  background-color: #1d1d1d;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  -webkit-app-region: drag;
+  z-index: 1000;
+  box-shadow: 1px 1px 1px 3px rgba(0, 0, 0, 0.05);
+}
+.titleBar div.titleBarLeft {
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: none;
+}
+.titleBar div.titleBarLeft span.contact_developer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0.15rem 0 0.15rem 0.75rem;
+  padding: 0.225rem 0.45rem;
+  border-radius: 0.36rem;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-app-region: no-drag;
+  user-select: none;
+}
+.titleBar div.titleBarLeft span.contact_developer:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.titleBar div.titleBarLeft span.contact_developer .mail_icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.3rem;
+}
+.titleBar div.titleBarLeft span.contact_developer .mail_icon svg {
+  width: inherit;
+  height: inherit;
+}
+.titleBar div.titleBarLeft span.logo {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+.titleBar div.titleBarLeft span.logo svg {
+  width: inherit;
+  height: inherit;
+}
+.titleBar div.titleBarLeft span.logo svg g {
+  fill: #f8f8f8;
+  stroke-width: 80;
+  stroke: white;
+}
+.titleBar .window_actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: stretch;
+}
+.titleBar .window_actions .closeIcon,
+.titleBar .window_actions .resizeIcon,
+.titleBar .window_actions .minimizeIcon {
+  -webkit-app-region: no-drag;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.375rem 0.75rem;
+}
+.titleBar .window_actions .closeIcon svg,
+.titleBar .window_actions .resizeIcon svg,
+.titleBar .window_actions .minimizeIcon svg {
+  pointer-events: none;
+}
+.titleBar .window_actions .closeIcon:hover,
+.titleBar .window_actions .resizeIcon:hover,
+.titleBar .window_actions .minimizeIcon:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.titleBar .window_actions .closeIcon:hover {
+  background-color: #ff0909;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 0.375rem;
+  border-radius: 0.45rem;
+  transition: all 0.1s linear;
+  z-index: 1000;
+}
+
+.mainWindow {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: stretch;
+  flex: 1;
+  margin-top: var(--title_bar_height);
+}
+.mainWindow__left, .mainWindow__center {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: none;
+}
+.mainWindow__left__header, .mainWindow__center__header {
+  position: relative;
+  height: var(--header_height);
+}
+.mainWindow__left__folders_list, .mainWindow__left__apps_list, .mainWindow__center__folders_list, .mainWindow__center__apps_list {
+  height: var(--list_height);
+}
+.mainWindow__left__bottom, .mainWindow__center__bottom {
+  height: var(--bottom_height);
+  padding: 0.375rem 0.75rem;
+}
+.mainWindow__left {
+  background-color: #2d2d2d;
+  flex-basis: 25%;
+}
+.mainWindow__left__bottom {
+  box-shadow: -2px -2px 2px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.mainWindow__left__bottom p {
+  font-size: 1.08rem;
+  font-weight: bold;
+}
+.mainWindow__left__bottom .new_folder_btn {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.mainWindow__left__bottom .new_folder_btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.mainWindow__left__folders_list {
+  height: calc(var(--header_height) + var(--list_height));
+  overflow-y: auto;
+}
+.mainWindow__left__folders_list_folder {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: none;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+}
+.mainWindow__left__folders_list_folder.disabled {
+  filter: brightness(80%);
+  pointer-events: none;
+}
+.mainWindow__left__folders_list_folder:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.mainWindow__left__folders_list_folder.active {
+  background-color: #282828;
+}
+.mainWindow__left__folders_list_folder.pinned .pinIcon svg {
+  fill: #A40FFF !important;
+}
+.mainWindow__left__folders_list_folder__left, .mainWindow__left__folders_list_folder__center, .mainWindow__left__folders_list_folder__right {
+  padding: 0.225rem;
+  align-self: center;
+}
+.mainWindow__left__folders_list_folder__left {
+  padding: 0;
+}
+.mainWindow__left__folders_list_folder__center {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-end;
+}
+.mainWindow__left__folders_list_folder__left {
+  flex: 8;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+}
+.mainWindow__left__folders_list_folder__left .folder_icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0.25rem 0.375rem;
+}
+.mainWindow__left__folders_list_folder__left .folder_icon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: #A40FFF;
+}
+.mainWindow__left__folders_list_folder__left p {
+  position: relative;
+  padding-left: 0.15rem;
+}
+.mainWindow__left__folders_list_folder__right {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.mainWindow__left__folders_list_folder__right .pinIcon,
+.mainWindow__left__folders_list_folder__right .closeIcon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0.25rem 0.375rem;
+}
+.mainWindow__left__folders_list_folder__right .pinIcon svg,
+.mainWindow__left__folders_list_folder__right .closeIcon svg {
+  pointer-events: none;
+}
+.mainWindow__left__folders_list_folder__right .pinIcon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  stroke: #f8f8f8;
+}
+.mainWindow__left__folders_list_folder__right .closeIcon:hover svg {
+  stroke: #ff0909;
+  fill: #ff0909;
+}
+.mainWindow__left__folders_list_folder__right .closeIcon svg {
+  width: 1rem;
+  height: 1rem;
+  stroke: #f8f8f8;
+  stroke-width: 20;
+}
+.mainWindow__center {
+  flex-basis: 50%;
+  background-color: #282828;
+  padding-left: 0.75rem;
+}
+.mainWindow__center__header, .mainWindow__center__apps_list, .mainWindow__center__bottom {
+  padding-left: 1.875rem;
+  padding-right: 1.875rem;
+}
+.mainWindow__center__header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.mainWindow__center__header .apps_counts_container .label {
+  font-size: 0.99rem;
+}
+.mainWindow__center__header .apps_counts_container .apps {
+  font-size: 0.99rem;
+  font-weight: bold;
+}
+.mainWindow__center__header .apps_search_bar {
+  position: relative;
+  width: 60%;
+  height: calc(var(--header_height) * 0.8);
+  border-radius: 0.45rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  padding-left: 0.75rem;
+}
+.mainWindow__center__header .apps_search_bar .search_bar_status_icon {
+  flex: 5%;
+  display: inline-block;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: inherit;
+  position: relative;
+}
+.mainWindow__center__header .apps_search_bar .search_bar_status_icon .loader {
+  opacity: 1;
+  visibility: visible;
+}
+.mainWindow__center__header .apps_search_bar .search_bar_status_icon span {
+  display: inline-block;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  position: relative;
+}
+.mainWindow__center__header .apps_search_bar .search_bar_status_icon span svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.mainWindow__center__header .apps_search_bar .search_bar_status_icon .search_bar_status_icon__indexing_apps {
+  position: absolute;
+  top: 50%;
+  left: 1.5rem;
+  height: 110%;
+  border-radius: inherit;
+  padding-right: 1.7rem;
+  background-color: transparent;
+  color: #f8f8f8;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 0.75rem;
+  transform: translate(-70%, -50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: background-color 0.1s, transform 0.3s, opacity 0.15s, visibility 0.1s;
+  font-weight: bold;
+}
+.mainWindow__center__header .apps_search_bar .search_bar_status_icon .search_bar_status_icon__indexing_apps.show {
+  transform: translate(-100%, -50%);
+  opacity: 1;
+  visibility: visible;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.mainWindow__center__header .apps_search_bar input[type=search] {
+  flex: 60%;
+  padding: 0.1875rem;
+  padding-bottom: 0.0075rem;
+  background-color: transparent;
+}
+.mainWindow__center__header .apps_search_bar input[type=search].disabled {
+  color: #CBC7C7;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location {
+  position: relative;
+  flex: 40%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: inherit;
+  align-self: stretch;
+  background-color: #A40FFF;
+  font-size: 0.9rem;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location.show_dropdown .dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .dropdown {
+  border-radius: inherit;
+  z-index: 10;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .dropdown .dropdown_value {
+  padding: 0.225rem 0.375rem;
+  height: calc(var(--header_height) * 0.8);
+  padding-top: calc(var(--header_height) * 0.2);
+  background-color: #424242;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .dropdown .dropdown_value:first-child {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .dropdown .dropdown_value:last-child {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-bottom: none;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .dropdown .dropdown_value:hover {
+  filter: brightness(120%);
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .apps_search_location__value {
+  padding-left: 0.375rem;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .apps_search_location__arrow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.225rem;
+}
+.mainWindow__center__header .apps_search_bar .apps_search_location .apps_search_location__arrow svg {
+  width: 0.7rem;
+  height: 0.7rem;
+  stroke: #f8f8f8;
+}
+.mainWindow__center__apps_list {
+  position: relative;
+  background-color: inherit;
+  height: calc(var(--list_height) - 0.75rem);
+  padding-left: 0.75rem;
+  margin-top: 0.75rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.mainWindow__center__apps_list::before {
+  content: "Select Folder(s) to view Apps.";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  font-size: x-large;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+  letter-spacing: 0.1rem;
+  filter: brightness(0.5);
+}
+.mainWindow__center__apps_list.has_apps::before {
+  content: "";
+}
+.mainWindow__center__apps_list.blur_apps .mainWindow__center__apps_list__app {
+  filter: blur(1px);
+}
+.mainWindow__center__apps_list.installing_done .mainWindow__center__apps_list__app {
+  scale: 1;
+  filter: unset;
+}
+.mainWindow__center__apps_list:hover .mainWindow__center__apps_list__app > .appBorder {
+  opacity: 1;
+}
+.mainWindow__center__apps_list__app {
+  background-color: inherit;
+  position: relative;
+  margin: 0.75rem 0;
+  border-radius: 0.45rem;
+  overflow: hidden;
+  cursor: pointer;
+}
+.mainWindow__center__apps_list__app.installing__ {
+  filter: unset !important;
+  scale: 1.02;
+}
+.mainWindow__center__apps_list__app:not(.show_path) .app_folder_path {
+  display: none !important;
+}
+.mainWindow__center__apps_list__app:hover::before {
+  opacity: 1;
+}
+.mainWindow__center__apps_list__app .error_content {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  border-radius: inherit;
+  transform: translateY(110%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s, visibility 0.1s, transform 0.2s ease-out;
+  background-color: #2d2d2d;
+  overflow-y: auto;
+}
+.mainWindow__center__apps_list__app .error_content.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0%);
+}
+.mainWindow__center__apps_list__app .error_content .error_details {
+  flex: 80%;
+  height: inherit;
+  border-radius: inherit;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+.mainWindow__center__apps_list__app .error_content .error_actions {
+  flex: 20%;
+  height: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.mainWindow__center__apps_list__app .error_content .error_actions button.error_report_btn {
+  color: #A40FFF;
+  background: transparent;
+  padding: 0.225rem 0.75rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+}
+.mainWindow__center__apps_list__app .error_content .error_actions button.error_report_btn:hover {
+  background-color: #A40FFF;
+}
+.mainWindow__center__apps_list__app .error_content .error_actions button.error_report_btn:hover {
+  color: #f8f8f8;
+}
+.mainWindow__center__apps_list__app .error_content .error_actions button.close_error_box {
+  background: transparent;
+  padding: 0.225rem 0.75rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  margin-top: 0.375rem;
+}
+.mainWindow__center__apps_list__app .error_content .error_actions button.close_error_box:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.mainWindow__center__apps_list__app .appContents {
+  background-color: inherit;
+  position: relative;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  margin: 1px;
+  border-radius: inherit;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: none;
+  padding: 0.75rem;
+  padding-left: 0;
+  z-index: 2;
+}
+.mainWindow__center__apps_list__app::before,
+.mainWindow__center__apps_list__app .appBorder {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(var(--hover_effect_width) circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.04), transparent 60%);
+  top: 0;
+  left: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 500ms;
+}
+.mainWindow__center__apps_list__app::before {
+  z-index: 3;
+  pointer-events: none;
+}
+.mainWindow__center__apps_list__app .appBorder {
+  background: radial-gradient(var(--hover_border_width) circle at var(--mouse-x) var(--mouse-y), rgba(164, 15, 255, 0.8), transparent 30%);
+  z-index: 1;
+}
+.mainWindow__center__apps_list__app:hover .app_selectedIcon, .mainWindow__center__apps_list__app.selected .app_selectedIcon {
+  filter: brightness(100%);
+}
+.mainWindow__center__apps_list__app.show_full_name .app_name::before {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.mainWindow__center__apps_list__app .app_selectedIcon {
+  flex: 1;
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  filter: brightness(80%);
+}
+.mainWindow__center__apps_list__app .app_selectedIcon svg {
+  width: 2rem;
+  height: 2rem;
+  fill: #A40FFF;
+}
+.mainWindow__center__apps_list__app__left {
+  flex: 6;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  overflow: hidden;
+}
+.mainWindow__center__apps_list__app__left img.app_logo {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.45rem;
+}
+.mainWindow__center__apps_list__app__left .app_info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: left;
+  padding-left: 0.525rem;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_name_type {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: none;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_name_type .app_name {
+  position: relative;
+  font-size: 1.08rem;
+  white-space: nowrap;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_name_type .app_name::before {
+  content: attr(data-name);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: attr(data-width-ch)ch;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  background-color: #282828;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_name_type .app_type {
+  background: #A40FFF;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0.15rem 0.375rem;
+  border-radius: 0.45rem;
+  font-size: 0.9rem;
+  margin-left: 0.75rem;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_name_type .app_type.hide {
+  display: none;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_more_info {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: none;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_more_info.show_apk_type > .app_more_info__apk_type {
+  display: block !important;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_more_info.show_apk_size > .app_more_info__apk_size {
+  display: block !important;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_more_info__apk_type, .mainWindow__center__apps_list__app__left .app_info .app_more_info__apk_size {
+  display: none;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_more_info p {
+  position: relative;
+  padding: 0.18rem 1.35rem 0.18rem 0;
+  color: #CBC7C7;
+  font-size: 0.81rem;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_folder_path {
+  display: block;
+}
+.mainWindow__center__apps_list__app__left .app_info .app_folder_path p {
+  font-size: 0.81rem;
+}
+.mainWindow__center__apps_list__app__right {
+  flex: 2;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  z-index: 5;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: none;
+  height: 1.8rem;
+  overflow: hidden;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  min-height: 1.8rem;
+  height: 1.8rem;
+  font-size: 1.08rem;
+  font-weight: bold;
+  width: fit-content;
+  background: linear-gradient(90deg, #f8f8f8, #A40FFF, #CBC7C7, #f8f8f8);
+  background-size: 300%;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: animateStatus 6s linear infinite;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Size, .mainWindow__center__apps_list__app__right .status_wrapper .status.Done, .mainWindow__center__apps_list__app__right .status_wrapper .status.Not.Installed {
+  background: none;
+  background-size: 0%;
+  -webkit-text-fill-color: #f8f8f8;
+  background-clip: unset;
+  -webkit-background-clip: unset;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Not.Installed, .mainWindow__center__apps_list__app__right .status_wrapper .status.Error {
+  -webkit-text-fill-color: #ff0909;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Error:hover {
+  padding: 0 0.225rem;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Cancelled {
+  -webkit-text-fill-color: #fffc00;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Done {
+  -webkit-text-fill-color: #00FF75;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Error .exclamation_icon {
+  border-radius: 50%;
+  display: inline-flex;
+  margin-left: 4px;
+}
+.mainWindow__center__apps_list__app__right .status_wrapper .status.Error .exclamation_icon svg {
+  fill: #ff0909;
+}
+.mainWindow__center__apps_list__app__right .app_size {
+  transition: transform 0.1s ease;
+}
+.mainWindow__center__bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.mainWindow__center__bottom__left {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding-right: 1.5rem;
+}
+.mainWindow__center__bottom__left svg {
+  width: 1.8rem;
+  height: 1.8rem;
+  fill: #A40FFF;
+}
+.mainWindow__center__bottom__left p {
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding-left: 0.525rem;
+  user-select: none;
+}
+.mainWindow__center__bottom__right {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+}
+.mainWindow__center__bottom__right .apps_to_install_info {
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+.mainWindow__center__bottom__right .apps_install_btn {
+  font-size: 0.99rem;
+  background: #A40FFF;
+  padding: 0.375rem 1.125rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  filter: brightness(100%);
+  pointer-events: all;
+}
+.mainWindow__center__bottom__right .apps_install_btn:hover {
+  background-color: #A40FFF;
+}
+.mainWindow__center__bottom__right .apps_install_btn.disabled {
+  filter: brightness(50%);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.mainWindow__right {
+  flex: 30%;
+  background-color: #282828;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.mainWindow__right .not_connected_device {
+  position: relative;
+  width: 70%;
+  height: 80%;
+  border-radius: 0.9rem;
+  background-color: #1d1d1d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.mainWindow__right .not_connected_device .android_svg {
+  width: 10rem;
+  height: 10rem;
+  fill: #3ad07f;
+}
+.mainWindow__right .not_connected_device p {
+  padding-top: 3.75rem;
+  font-size: 1.17rem;
+}
+.mainWindow__right .not_connected_device p span {
+  display: inline-block;
+  animation: upAdown 1s cubic-bezier(1, 0.47, 0.18, 0.7) infinite;
+  animation-delay: calc(0.5s * var(--s));
+}
+.mainWindow__right .selected_by_total_devices p {
+  font-size: 0.99rem;
+}
+.mainWindow__right .selected_by_total_devices p span {
+  font-size: 1.08rem;
+}
+.mainWindow__right .connected_devices {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  overflow-x: auto;
+}
+.mainWindow__right .connected_devices::-webkit-scrollbar {
+  display: none;
+}
+.mainWindow__right .connected_devices .model_names_tabs {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab.selected span {
+  color: #A40FFF;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab:not(.current_showing_model) {
+  display: none;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab:not(.current_showing_model) span {
+  font-size: 0.99rem;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab:not(.current_showing_model) svg, .mainWindow__right .connected_devices .model_names_tabs .model_name_tab.current_showing_model .left_arrow_span svg, .mainWindow__right .connected_devices .model_names_tabs .model_name_tab.current_showing_model .right_arrow_span svg {
+  display: none;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab:not(.current_showing_model) .left_arrow_span svg, .mainWindow__right .connected_devices .model_names_tabs .model_name_tab:not(.current_showing_model) .right_arrow_span svg {
+  display: block;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  stroke: #A40FFF;
+  stroke-width: 50;
+}
+.mainWindow__right .connected_devices .model_names_tabs .model_name_tab span {
+  padding-left: 0.375rem;
+  font-size: 1.215rem;
+}
+.mainWindow__right .connected_devices .current_showing_device {
+  position: relative;
+  width: 70%;
+  height: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+.mainWindow__right .connected_devices .mobile_device {
+  position: relative;
+  width: 100%;
+  height: 90%;
+  margin-top: 5%;
+  margin-right: 8%;
+  border-radius: 0.9rem;
+  background-color: #1d1d1d;
+  transition: all 0.1s;
+  cursor: pointer;
+}
+.mainWindow__right .connected_devices .mobile_device.selected .mobile_device__screen .status_bar::after {
+  content: "Selected";
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  padding: 0.15rem 0.375rem;
+  transform: translate(-5%, -50%);
+  background-color: #A40FFF;
+  border-radius: 0.45rem;
+}
+.mainWindow__right .connected_devices .mobile_device.current_showing {
+  margin-top: 0;
+  height: 100%;
+}
+.mainWindow__right .connected_devices .mobile_device::before,
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen {
+  content: "";
+  position: absolute;
+  inset: 0.5em 0.2em;
+  background-color: #2d2d2d;
+  border-radius: inherit;
+}
+.mainWindow__right .connected_devices .mobile_device__notch {
+  position: absolute;
+  top: 6%;
+  left: 90%;
+  transform: translate(-50%, -90%);
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 0.9rem;
+  background-color: #1d1d1d;
+  z-index: 2;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen {
+  border-radius: inherit;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .status_bar {
+  position: relative;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  height: 3em;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  height: calc(100% - 2em);
+  padding: 0.75rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .label {
+  font-size: 0.9rem;
+  color: #CBC7C7;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .value {
+  padding: 0.375rem 0;
+  font-size: 0.99rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: none;
+  height: 100%;
+  margin-bottom: 1.125rem;
+  padding: 0.375rem 0;
+  border-radius: 0.36rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .brand {
+  font-size: 2.25rem;
+  font-weight: 900;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs {
+  flex: 1;
+  height: auto;
+  overflow-y: auto;
+  margin-top: 1.5rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div .xapk_more_info {
+  padding-left: 1.75rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  padding: 0.375rem 0;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .app_name,
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .other {
+  padding: 0 0.225rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .icon.error svg {
+  fill: #ff0909;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .icon.cancelled svg path {
+  fill: #fffc00;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .icon.complete svg {
+  fill: #00FF75;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .icon svg {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  margin-right: 0.45rem;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .app_name {
+  color: #A40FFF;
+  font-weight: 600;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .installation_logs div p .apk_type {
+  color: #CBC7C7;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .model_vs_av {
+  padding-top: 0.375rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: baseline;
+}
+.mainWindow__right .connected_devices .mobile_device .mobile_device__screen .app_screen .connected_device .model_vs_av .model {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/*# sourceMappingURL=styles.css.map */

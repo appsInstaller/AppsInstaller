@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'"> -->
+    <title></title>
+
+    <link rel = 'stylesheet' href = "./src/styles/styles.css" />
+	<script defer src = "./src/controllers/script.js"></script>
+	<script defer src = "./src/controllers/adb.js"></script>
+
+</head>
+<body >
+    <main class = "window font-family-os">
+        <!-- Loading Screen -->
+        <div class = 'loading_screen'>
+            <span class = 'logo normal_svg'>
+                <svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 272.000000 288.000000" preserveAspectRatio="xMidYMid meet">
+
+                    <g transform="translate(0.000000,288.000000) scale(0.100000,-0.100000)" fill="white" stroke="none">
+                    <path d="M1422 2458 c-9 -9 -12 -131 -12 -487 l0 -476 -77 85 c-43 47 -106 114 -140 150 -59 61 -63 64 -79 48 -16 -16 -15 -20 22 -60 21 -24 95 -105 164 -180 68 -76 131 -138 140 -138 9 0 72 62 140 138 69 75 143 156 164 180 37 40 38 44 22 60 -16 16 -20 13 -79 -48 -34 -36 -97 -103 -140 -150 l-77 -85 0 476 c0 464 -2 499 -30 499 -3 0 -11 -5 -18 -12z"/>
+                    <path d="M833 2279 c-63 -24 -128 -85 -156 -147 -22 -47 -22 -52 -22 -737 0 -685 0 -690 22 -737 29 -64 93 -123 160 -148 54 -20 70 -21 617 -18 548 3 562 4 607 24 58 27 116 85 143 143 21 45 21 54 21 736 0 685 0 690 -22 737 -29 63 -93 123 -159 148 -49 18 -78 20 -284 20 l-230 0 0 -24 0 -24 238 -4 c220 -3 240 -5 277 -25 51 -27 89 -67 112 -118 17 -37 18 -85 21 -597 2 -319 -1 -558 -6 -558 -5 0 -17 9 -28 21 -10 12 -39 33 -64 48 l-45 26 -595 0 -595 0 -45 -26 c-25 -15 -54 -36 -64 -48 -11 -12 -23 -21 -28 -21 -5 0 -8 239 -6 558 3 512 4 560 21 597 23 51 61 91 112 118 37 20 57 22 278 25 l237 4 0 24 0 24 -232 -1 c-208 0 -239 -2 -285 -20z m1214 -1304 c169 -85 168 -317 -2 -408 -40 -22 -45 -22 -605 -22 -560 0 -565 0 -605 22 -170 91 -171 323 -2 408 l51 25 556 0 556 0 51 -25z"/>
+                    </g>
+                </svg>
+            </span>
+        </div>
+
+        <!-- App Screen  -->
+        <div class = "titleBar">
+            <div class = "titleBarLeft">
+                <span class = 'logo normal_svg'>
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 272.000000 288.000000" preserveAspectRatio="xMidYMid meet">
+    
+                        <g transform="translate(0.000000,288.000000) scale(0.100000,-0.100000)" fill="white" stroke="none">
+                        <path d="M1422 2458 c-9 -9 -12 -131 -12 -487 l0 -476 -77 85 c-43 47 -106 114 -140 150 -59 61 -63 64 -79 48 -16 -16 -15 -20 22 -60 21 -24 95 -105 164 -180 68 -76 131 -138 140 -138 9 0 72 62 140 138 69 75 143 156 164 180 37 40 38 44 22 60 -16 16 -20 13 -79 -48 -34 -36 -97 -103 -140 -150 l-77 -85 0 476 c0 464 -2 499 -30 499 -3 0 -11 -5 -18 -12z"/>
+                        <path d="M833 2279 c-63 -24 -128 -85 -156 -147 -22 -47 -22 -52 -22 -737 0 -685 0 -690 22 -737 29 -64 93 -123 160 -148 54 -20 70 -21 617 -18 548 3 562 4 607 24 58 27 116 85 143 143 21 45 21 54 21 736 0 685 0 690 -22 737 -29 63 -93 123 -159 148 -49 18 -78 20 -284 20 l-230 0 0 -24 0 -24 238 -4 c220 -3 240 -5 277 -25 51 -27 89 -67 112 -118 17 -37 18 -85 21 -597 2 -319 -1 -558 -6 -558 -5 0 -17 9 -28 21 -10 12 -39 33 -64 48 l-45 26 -595 0 -595 0 -45 -26 c-25 -15 -54 -36 -64 -48 -11 -12 -23 -21 -28 -21 -5 0 -8 239 -6 558 3 512 4 560 21 597 23 51 61 91 112 118 37 20 57 22 278 25 l237 4 0 24 0 24 -232 -1 c-208 0 -239 -2 -285 -20z m1214 -1304 c169 -85 168 -317 -2 -408 -40 -22 -45 -22 -605 -22 -560 0 -565 0 -605 22 -170 91 -171 323 -2 408 l51 25 556 0 556 0 51 -25z"/>
+                        </g>
+                    </svg>
+                </span>
+                <span class = 'contact_developer' onclick="email_popUp_open(event, true)">
+                    <span class = 'mail_icon'>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+                            <path d="M853.333333 896H170.666667c-72.533333 0-128-55.466667-128-128V256c0-72.533333 55.466667-128 128-128h682.666666c72.533333 0 128 55.466667 128 128v512c0 72.533333-55.466667 128-128 128zM170.666667 213.333333c-25.6 0-42.666667 17.066667-42.666667 42.666667v512c0 25.6 17.066667 42.666667 42.666667 42.666667h682.666666c25.6 0 42.666667-17.066667 42.666667-42.666667V256c0-25.6-17.066667-42.666667-42.666667-42.666667H170.666667z"/><path d="M512 597.333333c-8.533333 0-17.066667-4.266667-25.6-8.533333l-426.666667-298.666667c-17.066667-12.8-21.333333-38.4-8.533333-59.733333 12.8-17.066667 38.4-21.333333 59.733333-8.533333l401.066667 281.6 401.066667-281.6c21.333333-12.8 46.933333-8.533333 59.733333 8.533333 12.8 21.333333 8.533333 46.933333-8.533333 59.733333l-426.666667 298.666667c-8.533333 4.266667-17.066667 8.533333-25.6 8.533333z"/>
+                        </svg>
+                    </span>
+                    <span class = "">Contact Developer</span>
+                </span>
+            </div>
+            <div class = "window_actions" onmousemove="window_actions_mouse_moved(event)" onmouseleave="window_actions_mouse_leave(event)">
+                <span class = "minimizeIcon" data-tooltip = "Minimize" onclick="minimizeWindow()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class = "normal_svg">
+                        <path d="M14 8v1H3V8h11z"/>
+                    </svg>
+                </span>
+                <span class = "resizeIcon" data-tooltip = "Expand" onclick="resizeWindow()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+                        <path d="M853.504 170.496v682.496H170.496V170.496h683.008m4.096-64h-691.2c-32.768 0-59.392 26.624-59.392 59.392v691.712c0 32.768 26.624 59.392 59.392 59.392h691.712c32.768 0 59.392-26.624 59.392-59.392v-691.2c0-33.28-26.624-59.904-59.904-59.904 0.512 0 0 0 0 0z"/>
+                    </svg>
+                </span>
+                <span class = "closeIcon" data-tooltip = "Close" onclick="closeWindow()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+                        <path d="M945.930435 893.864104 556.382325 510.921435l381.169279-391.296941c12.443403-12.757558 12.218276-33.217543-0.49221-45.705971-12.688997-12.487406-33.062-12.263301-45.480844 0.494257L510.399037 465.718931 120.843764 82.768075c-12.691043-12.487406-33.062-12.263301-45.481867 0.494257-12.419867 12.735046-12.195763 33.217543 0.494257 45.683459l389.553227 382.958018L84.231915 903.207913c-12.443403 12.756535-12.217253 33.216519 0.494257 45.705971 6.356778 6.243191 14.622022 9.29776 22.841218 9.208732 8.243755-0.091074 16.418948-3.325745 22.64065-9.702989l381.182582-391.310244L900.942825 940.065356c6.333242 6.242168 14.600533 9.320273 22.840194 9.229199 8.222265-0.088004 16.419971-3.346211 22.64065-9.723455C958.844559 926.811494 958.641945 906.35151 945.930435 893.864104z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        <div class="mainWindow">
+            <div class = "mainWindow__left">
+                <div class = "mainWindow__left__folders_list"></div>
+                <div class = "mainWindow__left__bottom"> 
+                    <p>Folders</p>
+                    <button class = "new_folder_btn">
+                        Add Folder
+                    </button>
+                </div>
+            </div>
+            <div class = "mainWindow__center">
+                <div class = "mainWindow__center__header">
+                    <p class = 'apps_counts_container'>
+                        <span class = "label"></span>
+                        <span class = "apps"></span>
+                    </p>
+                    <div class = "apps_search_bar">
+                        <span class = "search_bar_status_icon">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+                                    <path d="M192 480a256 256 0 1 1 512 0 256 256 0 0 1-512 0m631.776 362.496l-143.2-143.168A318.464 318.464 0 0 0 768 480c0-176.736-143.264-320-320-320S128 303.264 128 480s143.264 320 320 320a318.016 318.016 0 0 0 184.16-58.592l146.336 146.368c12.512 12.48 32.768 12.48 45.28 0 12.48-12.512 12.48-32.768 0-45.28"/>
+                                </svg>
+                            </span>
+                            <span class = 'search_bar_status_icon__indexing_apps'></span>
+                        </span>
+                        <!-- <span class = "loader main_svg"></span> -->
+                        <input id = "searchapps" onkeyup="appsSearchBar_onkeyup(this)" class = "disabled" type = "search" placeholder="Search in ..." autocomplete="off" />   
+                               
+                        <div class = "apps_search_location" onclick = "show_apps_search_locations(this)" data-value = "current">
+                            <span class = "apps_search_location__value"> Current Folder </span>
+                            <span class = 'apps_search_location__arrow'>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+                                    <path xmlns="http://www.w3.org/2000/svg" d="M1005.9 333L576 762.9c-17.3 17.3-40.2 26.7-64.7 26.7s-47.4-9.5-64.7-26.7L16.8 333c-22.3-22.3-22.3-58.5 0-80.8 22.3-22.3 58.5-22.3 80.8 0l413.8 413.7 413.8-413.8c22.3-22.3 58.5-22.3 80.8 0 11.2 11.2 16.7 25.8 16.7 40.5-0.1 14.6-5.6 29.2-16.8 40.4z m0 0" fill=""/>                                
+                                </svg>
+                            </span>
+                            <div class="dropdown">
+                                <p class = 'dropdown_value' onclick = "apps_search_location_onclick(this)" data-value = 'current'>Current Folder</p>
+                                <p class = 'dropdown_value' onclick = "apps_search_location_onclick(this)" data-value = 'all'>All Folders</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class = "mainWindow__center__apps_list" >
+                </div>
+                <div class = "mainWindow__center__bottom">
+                    <div class = "mainWindow__center__bottom__left" onclick="select_or_deselect_all_apps()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon main_svg" viewBox="0 0 1024 1024" version="1.1">
+                            <path d="M227.487 892.447c-50.919 0-92.345-41.426-92.345-92.345V222.49c0-50.14 40.791-90.932 90.932-90.932h573.291c49.347 0 89.493 40.146 89.493 89.493V801.9c0 49.925-40.622 90.547-90.548 90.547H227.487z m11.197-706.74c-27.233 0-49.387 22.155-49.387 49.388v552.817c0 27.78 22.6 50.38 50.38 50.38h546.08c26.992 0 48.957-21.96 48.957-48.957V235.254c0-27.32-22.226-49.546-49.547-49.546H238.684z"/>
+                        </svg>
+                        <p>Select All</p>
+                    </div>
+                    <div class = "mainWindow__center__bottom__right">
+                        <p class = "apps_to_install_info">0 Selected App</p>
+                        <button class = "apps_install_btn disabled" onclick="apps_install_btn_onclick(this)">
+                            Install
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class = "mainWindow__right">
+                
+            </div>
+        </div>
+
+        <!-- Email Form PopUp -->
+        <div class = "email_form_popUp"  >
+            <form id = 'email_form' autocomplete="off" method="post" enctype="multipart/form-data">
+                <div class = "form_header">
+                    <div class = 'select_mail_types' onclick="change_mail_type(this)">
+                        <span class = "mail_type_value" data-value = 'feedback'  >Feedback</span>
+                        <div class = "mail_types_dropdown">
+                            <span class = "feedback" data-value = "feedback" onclick = "mail_type_item_click(this)">Feedback</span>
+                            <span class = "error" data-value = "error" onclick = "mail_type_item_click(this)">Error</span>
+                        </div>
+                    </div>
+                    <div class = 'add_attachment_container'>
+                        <input
+                            type="file"
+                            multiple
+                            id="add_attachment_input" 
+                            accept="image/*,.pdf,.txt"
+                            onchange="preview_attachment_files(this)"
+                            maxlength="5"
+                            />
+                        <button type = 'button' class = 'add_attachment'>
+                            Add Attachment
+                        </button>
+                    </div>
+                </div>
+                <div class = "form_contents">
+                    <textarea placeholder="Say something ..." rows="7" wrap="hard" class = 'msg' oninput="textarea_value_change(this)"></textarea>
+                    <div class = 'attchments' onscroll="attachments_scrolling()" onmousewheel="attachments_onmousewheel(this, event)">
+                        
+                    </div>
+                    <div class = 'form_bottom'>
+                        <p>
+                            <span class = 'normal_svg'>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+                                    <path d="M443.72992 750.92992c0-37.66272 30.5664-68.25984 68.27008-68.25984s68.27008 30.59712 68.27008 68.25984a68.27008 68.27008 0 0 1-136.54016 0zM546.12992 614.4h-68.25984l-34.14016-409.6h136.54016z"/>
+                                </svg>
+                            </span>
+                            <span class = 'warning'>
+                                Attachment can be <span>images/txt/pdf</span> files.
+                            </span>
+                        </p>
+                        <div class = 'form_buttons'>
+                            <button type="object" onclick = "email_popUp_open(event, false)">Close</button>
+                            <button type="submit" value="send_mail">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+
+</body>
+</html>

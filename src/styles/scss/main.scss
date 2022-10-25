@@ -1,0 +1,1691 @@
+@use "variables";
+
+// Font
+@font-face {
+    font-family: 'OpenSans';
+    src: url("./font/OpenSans-Regular.woff");
+}
+
+html {
+    scroll-behavior: smooth;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'OpenSans';
+}
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance:none;
+}
+
+// Icon 
+// %svg {
+//     display: inline-block;
+//     width: variables.$svg_width;
+//     height: variables.$svg_height;
+//     cursor: pointer;
+//     padding: variables.$default_padding;
+// }
+
+// .pinIcon {
+//     @extend %svg;
+//     position: relative;
+//     border: 1px solid red;
+
+//     &::before {
+//         content: "";
+//         position: absolute;
+//         top: 0%;
+//         left: 50%;
+//         width: 50%;
+//         height: 50%;
+//         transform: translateX(-50%);
+//         border-radius: 50%;
+//         border: 2px solid variables.$white;
+//     }
+
+//     &::after {
+//         content: "";
+//         position: absolute;
+//         top: 60%;
+//         left: 50%;
+//         width: 10%;
+//         height: 40%;
+//         // background-color: variables.$white;
+//         transform: translateX(-50%);
+//     }
+// }
+
+// ScrollBar
+/* width */
+::-webkit-scrollbar {
+    width: 3px;     /* width of vertical scrollbar */
+    height: 3px;    /* height of horizontal scrollbar ← You're missing this */
+           
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: variables.$default_border_raduis;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: variables.$primaryColor;
+    border-radius: variables.$default_border_raduis;
+}
+
+:root {
+    --title_bar_height: 6vh;
+    --header_height: 7vh;
+    --list_height: 81vh;
+    --bottom_height: 6vh;
+
+}
+
+// Controllers
+@mixin flex($alignItems: none, $flexDirection: row, $justifyContent: left) {
+    display: flex;
+    flex-direction: $flexDirection;
+    justify-content: $justifyContent;
+    align-items: $alignItems;
+
+} 
+
+@mixin Button($backgroundColor, $padding, $hoverBackground) {
+    background: $backgroundColor;
+    padding: $padding;
+    border-radius: calc(variables.$default_border_raduis / 2) ;
+    cursor: pointer;
+
+    &:hover {
+        background-color: $hoverBackground;
+    }
+}
+
+
+*,
+*::before,
+*::after  {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    color: variables.$white;
+    font-size: variables.$default_font_size;
+}
+input[type=file], /* FF, IE7+, chrome (except button) */
+input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
+    cursor: pointer; 
+}
+%svg {
+    width: variables.$svg_width;
+    height: variables.$svg_height;
+    // padding: variables.$default_padding * .2;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes animateStatus {
+    0% { background-position: 0%;}
+    100% { background-position: -300%;}
+}
+
+@keyframes upAdown {
+    0% { transform: translateY(0); }
+    20% { transform: translateY(-5px); }
+    40%,100% { transform: translateY(0px); }
+}
+.main_svg {
+    @extend %svg;
+    fill: variables.$white;
+}
+
+.normal_svg {
+    @extend %svg;
+    fill: variables.$white;
+}
+
+.window {
+    position: relative;
+    height: 100vh;
+    @include flex($flexDirection: column);
+
+    &.loaded .loading_screen {
+        display: none;
+    }
+    .loading_screen {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: variables.$gray_color_2;
+        z-index: 10000;
+        @include flex($alignItems: center, $justifyContent: center);
+
+        .logo { 
+            width: calc(variables.$svg_width * 13);
+            height: calc(variables.$svg_height * 13);
+
+            svg g {
+                fill: variables.$primaryColor;
+            }
+        }
+    }
+}
+
+.loader {
+    border: 3px solid transparent; /* Light grey */
+    border-top: 3px solid variables.$primaryColor; /* Blue */
+    border-radius: 50%;
+    animation: spin 1s ease-in infinite;
+    opacity: 0;
+    visibility: hidden;
+    width: calc(variables.$svg_width * 1.3);
+    height: calc(variables.$svg_height * 1.3);
+    transition: opacity .1s,
+                visibility .1s;
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.splash_screen {
+    background-color: variables.$gray_color_1;
+    @include flex($justifyContent: center, $alignItems: center);
+    flex: 1;
+}
+
+.email_form_popUp {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: variables.$black_2;
+    z-index: 5000;
+    @include flex($justifyContent: center, $alignItems: flex-start);
+    opacity: 0;
+    visibility: hidden;
+    transition: all .1s;
+
+    &.show {
+        opacity: 1;
+        visibility: visible;
+
+        form {
+            transform: translateY(0%);
+        }
+    }
+
+    form {
+        width: 40%;
+        -webkit-app-region: no-drag;
+        font-size: variables.$default_font_size * 1.1;
+        background-color: variables.$gray_color_2;
+        padding: variables.$default_padding;
+        border-radius: variables.$default_border_raduis * .6;
+        border-top-left-radius: none;
+        border-top-right-radius: none;
+        transform: translateY(-60%) ;
+        transition: all .1s ease-in;
+
+        .form_header {
+            border-radius: variables.$default_border_raduis * .6;
+            @include flex($justifyContent: space-between, $alignItems: center);
+             padding: 0 0 variables.$default_padding 0;
+
+            .add_attachment_container{
+                position: relative;
+
+                #add_attachment_input {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                }
+                .add_attachment {
+                    @include Button(variables.$white_1, calc(variables.$default_padding * .6) calc(variables.$default_padding * 1.2), variables.$white_2);
+                    font-size: variables.$default_font_size * 1.2;
+                    
+                }
+            }
+
+            .select_mail_types {
+                border-radius: inherit;
+                position: relative;
+                width: 25%;
+                // border: 1px solid red;
+                cursor: pointer;
+                // color: variables.$black;
+
+                span {
+                    display: inline-block;
+                    font-size: variables.$default_font_size * 1.4;
+                    padding: variables.$default_padding * .4 variables.$default_padding * .2;
+                    width: 100%;
+                    user-select: none;
+                }
+                .mail_types_dropdown {
+                    position: absolute;
+                    @include flex($flexDirection: column);
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    display: none;
+                    background-color: variables.$black_1;
+                    border-radius: inherit;
+                    
+
+                    &.show {
+                        display: block;
+                    }
+
+                    span{
+                        border-radius: none !important;
+
+                        &:first-child {
+                            
+                            border-top-left-radius: inherit;
+                            border-top-right-radius: inherit;
+                        }
+                        &:last-child {
+                            
+                            border-bottom-left-radius: inherit;
+                            border-bottom-right-radius: inherit;
+                        }
+                        &:hover {
+                            background-color: variables.$white_1;
+                        }
+                    }
+                }
+                .mail_type_value {
+                    position: relative;
+                    width: 100%;
+                    // height: 100%;
+                    // border: 1px solid blue;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: 55%;
+                        left: 90%;
+                        transform: translate(-50%, -50%) rotate(45deg);
+                        width: .4em;
+                        height: .4em;
+                        border: 1px solid variables.$white_2;
+                        // transform: ;
+                    }
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        top: 55%;
+                        left: 90%;
+                        transform: translate(-50%, -50%);
+                        width: .7em;
+                        height: 2px;
+                        background-color: variables.$gray_color_1;
+                        // transform: ;
+                    }
+                }
+                // padding: calc(variables.$default_padding * .6) calc(variables.$default_padding * 1.2) calc(variables.$default_padding * .6) 0;
+                // width: 100%;
+                // appearance: none;
+                // background-color: transparent;
+                // border: none;
+                // border: 1px solid blue;
+                // outline: none;
+                // font-size: variables.$default_font_size * 1.4;
+
+                
+            }
+        }
+
+        .form_contents {
+            border-radius: variables.$default_border_raduis * .6;
+            background-color: variables.$gray_color_1;
+            padding: variables.$default_padding;
+
+            .attchments {
+                position: relative;
+                // border: 1px solid red;
+                border-radius: inherit;
+                height: 100px;
+                overflow-x: auto;
+                white-space: nowrap;
+
+                &::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .attachment {
+                    position: relative;
+                    display: inline-block;
+                    width: 70px;
+                    height: 70px;
+                    margin-top: 15px;
+                    // border: 1px solid blue;
+                    border-radius: inherit;
+                    margin-right: variables.$default_padding;
+
+                    .attachment_content {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        border-radius: inherit;
+                        background-color: variables.$white_2;
+
+                        &:not([data-has_file='true'])::before {
+                            content: attr(data-attachment_type);
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            border-radius: inherit;
+                            font-size: variables.$default_font_size * 1.6;
+                            color: variables.$muteTextColor;
+                            font-weight: bolder;
+
+                        }
+
+                        img {
+                            width: inherit;
+                            height: inherit;
+                            border-radius: inherit;
+
+                        }
+                    }
+                    .remove_attachment_btn {
+                        position: absolute;
+                        right: -10px;
+                        top: -10px;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        background-color: variables.$white_1_hex;
+                        @include flex($justifyContent: center, $alignItems: center);
+                        cursor: pointer;
+                        z-index: 2;
+
+                        svg {
+                            width: variables.$svg_width * .8;
+                            height: variables.$svg_height * .8;
+                        }
+                    }
+                }
+            }
+            textarea {
+                position: relative;
+                resize: none;
+                font-size: variables.$default_font_size * 1.1;
+                padding: variables.$default_padding;
+                background-color: transparent;
+                border: 1px solid transparent;
+                border-radius: inherit;
+                width: 100%;
+                
+                &.require {
+                    border: 1px solid variables.$red;
+                }
+            }
+
+            .form_bottom {
+                @include flex($justifyContent: space-between, $alignItems: center);
+
+                p {
+                    @include flex( $alignItems: center);
+                    
+                    span.warning {
+                        color: variables.$muteTextColor;
+
+                        span{
+                            color: variables.$muteTextColor;
+                            padding: 0 variables.$default_padding * .2;
+    
+                        }
+                    }
+                }
+                .form_buttons {
+                    button {
+                        font-size: variables.$default_font_size * 1.2;
+                        border-radius: variables.$default_border_raduis * .6;
+                    }
+                    button[type='submit'] {
+                        @include Button(variables.$primaryColor, calc(variables.$default_padding * .5) calc(variables.$default_padding), variables.$primaryColor );
+                        
+                        &.disabled {
+                            filter: brightness(60%);
+                            pointer-events: none;
+                        }
+                    }
+    
+                    button[type='object'] {
+                        margin-right: variables.$default_padding * .5;
+                        color: variables.$muteTextColor;
+                        @include Button(transparent, calc(variables.$default_padding * .5) calc(variables.$default_padding), transparent);
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+
+.titleBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--title_bar_height);
+    background-color: variables.$gray_color_4;
+    @include flex($justifyContent: space-between, $alignItems: stretch);
+    -webkit-app-region: drag;
+    z-index: 1000;
+    box-shadow: 1px 1px 1px 3px variables.$box_shadow_color;
+    
+    div.titleBarLeft {
+        align-self: center;
+        // border: 1px solid blue;
+        @include flex();
+
+        span.contact_developer {
+            @include flex($justifyContent: center, $alignItems: center);
+            // border: 1px solid red;
+            margin: variables.$default_padding * .2 0 variables.$default_padding * .2 variables.$default_padding;
+            padding: variables.$default_padding * .3 variables.$default_padding * .6;
+            border-radius: variables.$default_border_raduis * .4;
+            cursor: pointer;
+            background-color: variables.$white_1;
+            -webkit-app-region: no-drag;
+            user-select: none;
+
+            &:hover {
+                background-color: variables.$white_2;
+            }
+
+            .mail_icon {
+                @include flex($justifyContent: center, $alignItems: center);
+                width: calc(variables.$svg_width * 1.2);
+                height: calc(variables.$svg_height * 1.2);
+                margin-right: variables.$default_padding * .4;
+
+                svg {
+                    width: inherit;
+                    height: inherit;
+                }
+            }
+
+        }
+        span.logo {
+            // border: 1px solid green;
+            width: calc(variables.$svg_width * 2.2);
+            height: calc(variables.$svg_height * 2.2);
+            // border: 1px solid red;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                g {
+                    fill: variables.$white;
+                    stroke-width: 80;
+                    stroke: white;
+                }
+            }
+        }
+    }
+
+    .window_actions {
+        // border: 1px solid red;
+        @include flex($alignItems: stretch);
+
+        .closeIcon,
+        .resizeIcon,
+        .minimizeIcon {
+            // border: 1px solid blue;
+            -webkit-app-region: no-drag;
+            @include flex($justifyContent: center, $alignItems: center);
+            cursor: pointer;
+            padding: calc(variables.$default_padding / 2) variables.$default_padding;
+            
+            svg {
+                pointer-events: none;
+
+            }
+            &:hover {
+                background-color: variables.$white_2;
+            }
+        }
+
+        .closeIcon:hover {
+            background-color: variables.$red;
+        }
+
+    }
+}
+.tooltip {
+    position: absolute;
+    // background-color: variables.$black_4;
+    padding: variables.$default_padding * .5;
+    border-radius: variables.$default_border_raduis * .5;
+    transition: all .1s linear;
+    z-index: 1000;
+
+}
+.mainWindow {
+    @include flex($alignItems: stretch);
+    flex: 1;
+    margin-top: var(--title_bar_height);
+
+    &__left,
+    &__center {
+        @include flex($flexDirection: column);
+
+        &__header {
+            // border: 1px solid red;
+            position: relative;
+            height: var(--header_height);
+        }
+        &__folders_list,
+        &__apps_list {
+            // border: 1px solid blue;
+            height: var(--list_height);
+            
+        }
+        &__bottom {
+            // border: 1px solid green;
+            // border: 1px solid blue;
+            height: var(--bottom_height);
+            padding: calc(variables.$default_padding / 2) variables.$default_padding;
+
+        }
+    }
+    &__left {
+        background-color: variables.$gray_color_2;
+        // filter: brightness(90%);
+        flex-basis: 25%;
+        // border: 1px solid red;
+
+        &__bottom {
+            // border: 1px solid red;
+            // background-color: inherit;
+            box-shadow: -2px -2px 2px 2px variables.$box_shadow_color;
+            @include flex($alignItems: baseline, $justifyContent: space-between);
+            
+            // &::before {
+            //     content: "";
+            //     position: absolute;
+            //     left: variables.$default_padding;
+            //     bottom: 0;
+            //     border: 1px solid variables.$gray;
+            //     border-radius: variables.$default_border_raduis;
+            //     width: calc(100% - (variables.$default_padding * 2));
+            // }   
+            p {
+                // border: 1px solid green;
+                font-size: variables.$default_font_size * 1.2;
+                font-weight: bold;
+            }
+
+            .new_folder_btn {
+                // border: 1px solid yellow;
+                // align-self: last baseline ;
+                @include Button(variables.$white_1, calc(variables.$default_padding * .6) variables.$default_padding, variables.$white_2);
+                // color: variables.$primaryColor;
+                // padding: 0;
+                font-size: variables.$default_font_size ;
+            }
+        }
+
+        &__folders_list {
+            height: calc(var(--header_height) + var(--list_height));
+            // background-color: inherit;
+            // border: 1px solid blue;
+            // padding-top: calc(variables.$default_padding / 3);
+            overflow-y: auto;
+
+            &_folder {
+                position: relative;
+                @include flex($justifyContent: space-between);
+                padding: calc(variables.$default_padding * .6) variables.$default_padding;
+                cursor: pointer;
+                // border: 1px solid red;
+                
+                &.disabled {
+                    filter: brightness(80%);
+                    pointer-events: none;
+                    // cursor: not-allowed;
+                }
+
+                &:hover {
+                    background: variables.$white_1;
+                }
+
+                &.active {
+                    background-color: variables.$gray_color_1;  
+
+                    // .loader {
+                    //     border-top: 3px solid variables.$primaryColor; /* Blue */
+                    // }
+
+                    .folder_icon svg {
+                        // fill: variables.$primaryColor;
+                    }
+                   
+                }
+
+                &.pinned .pinIcon svg{
+                    fill: variables.$primaryColor !important;
+                }
+                &__left,
+                &__center,
+                &__right {
+                    // padding:  variables.$default_padding;
+                    padding:  variables.$default_padding * .3;
+                    // border: 1px solid green;
+                    align-self: center;
+                }
+                &__left {
+                    padding: 0;
+                }
+                &__center {
+                    @include flex($alignItems: flex-end, $justifyContent: center);
+                    
+                }
+                &__left {
+                    // border: 1px solid green;
+                    flex: 8;
+                    @include flex($alignItems: center);
+
+
+                    .folder_icon {
+                        // border: 1px solid green;
+                        @include flex($alignItems: center, $justifyContent: center);
+                        padding: calc(variables.$default_padding / 3) calc(variables.$default_padding / 2);
+                        
+                        svg {
+                            width: variables.$svg_width * 1.4;
+                            height: variables.$svg_height * 1.4;
+                            fill: variables.$primaryColor;
+                        }
+                    }
+                    p {
+                        position: relative;
+                        padding-left: calc(variables.$default_padding * .2);
+
+                       
+                    }
+                }
+
+                &__right {
+                    // border: 1px solid blue;
+                    flex: 1;
+                    @include flex($alignItems: center, $justifyContent: center);
+
+                    .pinIcon,
+                    .closeIcon {
+                        // border: 1px solid blue;
+                        @include flex($alignItems: center, $justifyContent: center);
+                        padding: calc(variables.$default_padding / 3) calc(variables.$default_padding / 2);
+
+                        svg {
+                            pointer-events: none;
+                        }
+                    }
+
+                    .pinIcon {
+                        svg {
+                            width: variables.$svg_width * 1.2;
+                            height: variables.$svg_height * 1.2;
+                            stroke: variables.$white;
+                        }
+                    }
+                    .closeIcon {
+
+                        &:hover svg {
+                            stroke: variables.$red;
+                            fill: variables.$red;
+                        }
+                        svg {
+                            width: variables.$svg_width;
+                            height: variables.$svg_height;
+                            stroke: variables.$white;
+                            stroke-width: 20;
+                        }
+                    }
+                }
+                
+            }
+        }
+    }
+    &__center {
+        flex-basis: 50%;
+        background-color: variables.$gray_color_1;
+        padding-left: variables.$default_padding;
+        // padding: 0 variables.$default_padding 0 variables.$default_padding;
+        
+        &__header,
+        &__apps_list,
+        &__bottom {
+            // border: 1px solid red;
+            padding-left: variables.$default_padding * 2.5;
+            padding-right: variables.$default_padding * 2.5;
+        }
+        
+        &__header {
+            @include flex($justifyContent: space-between, $alignItems: flex-end);
+            
+            .apps_counts_container {
+                // border: 1px solid red;
+
+                .label {
+                    font-size: variables.$default_font_size * 1.1;
+                }
+
+                .apps {
+                    font-size: variables.$default_font_size * 1.1;
+                    font-weight: bold;
+                }
+            }
+            .apps_search_bar {
+                // border: 1px solid red;
+                position: relative;
+                width: 60%;
+                height: calc(var(--header_height) * .8);
+                border-radius: variables.$default_border_raduis * .5;
+                background-color: variables.$white_1;
+                @include flex($alignItems: center);
+                padding-left: variables.$default_padding;
+                
+                .search_bar_status_icon {
+                    flex: 5%;
+                    display: inline-block;
+                    @include flex($alignItems: center, $justifyContent: center);
+                    border-radius: inherit;
+                    position: relative;
+
+                    .loader {
+                        opacity: 1;
+                        visibility: visible;
+                    }
+                    
+                    span {
+                        display: inline-block;
+                        @include flex($alignItems: center, $justifyContent: center);
+                        border-radius: 50%;
+                        position: relative;
+
+                        svg {
+                            width: variables.$svg_width * 1.4;
+                            height: variables.$svg_height * 1.4;
+                        }
+                    }
+
+                    
+                    .search_bar_status_icon__indexing_apps{
+                        position: absolute;
+                        top: 50%;
+                        left: variables.$svg_width * 1.5;
+                        height: 110%;
+                        border-radius: inherit;
+                        padding-right: variables.$svg_width * 1.7;
+                        background-color: transparent;
+                        color: variables.$white;
+                        @include flex($alignItems: center, $justifyContent: flex-start);
+                        padding-left: variables.$default_padding;
+                        transform: translate(-70%, -50%);
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: background-color .1s, transform .3s, opacity .15s, visibility .1s;
+                        font-weight: bold;
+
+                        &.show {
+                            
+                            transform: translate(-100%, -50%);
+                            opacity: 1;
+                            visibility: visible;
+                            background-color: variables.$white_1;
+                        }
+
+                    }
+                }
+                
+                
+                input[type="search"] {
+                    // border: 1px solid red;
+                    flex: 60%;
+                    padding: variables.$default_padding * .25 ;
+                    padding-bottom: variables.$default_padding * .01;
+                    background-color: transparent;
+
+                    &.disabled {
+                        color: variables.$muteTextColor;
+                    }
+                }
+
+                .apps_search_location {
+                    position: relative;
+                    flex: 40%;
+                    @include flex($alignItems: center, $justifyContent: center);
+                    cursor: pointer;
+                    border-radius:inherit;
+                    align-self: stretch;
+                    background-color: variables.$primaryColor;
+                    font-size: variables.$default_font_size;
+
+                    &.show_dropdown .dropdown {
+                        opacity: 1;
+                        visibility: visible;
+                    }
+                    .dropdown {
+                        border-radius: inherit;
+                        z-index: 10;
+                        position: absolute;
+                        top: 110%;
+                        left: 0;
+                        width: 100%;
+                        opacity: 0;
+                        visibility: hidden;
+
+                        .dropdown_value {
+                            padding: variables.$default_padding * .3 variables.$default_padding * .5;
+                            // border-radius: inherit;
+                            height: calc(var(--header_height) * .8); // same with search bar height
+                            padding-top: calc(var(--header_height) * .2);
+                            background-color: variables.$white_1_hex;
+                            border-bottom: 1px solid variables.$white_1;
+
+                            &:first-child {
+                                border-top-left-radius: inherit;
+                                border-top-right-radius: inherit;
+                            }
+                            &:last-child {
+                                border-bottom-left-radius: inherit;
+                                border-bottom-right-radius: inherit;
+                                border-bottom: none;
+                            }
+
+                            &:hover {
+                                filter: brightness(120%);
+                            }
+                        }
+
+                        
+                    }
+                    .apps_search_location__value {
+                        padding-left: variables.$default_padding * .5;
+                    }
+
+                    .apps_search_location__arrow {
+                        @include flex($alignItems: center, $justifyContent: center);
+                        padding: 0 variables.$default_padding * .3;
+
+                        svg {
+                            width: variables.$svg_width * .7;
+                            height: variables.$svg_height * .7;
+                            // stroke-width: 10;
+                            stroke: variables.$white;
+                        }
+                    }
+                }
+            }
+        }
+
+        &__apps_list {
+            position: relative;
+            background-color: inherit;
+            height: calc(var(--list_height) - variables.$default_padding);
+            // max-height: calc(100vh - variables.$titleBarHeight);
+            padding-left: variables.$default_padding;
+            margin-top: variables.$default_padding;
+            // padding-right: calc(variables.$default_padding * 2);
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            &::before {
+                content: "Select Folder(s) to view Apps.";
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                font-size: x-large;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bolder;
+                letter-spacing: .1rem;
+                filter: brightness(0.5);
+            }
+            &.has_apps::before {
+                content: "";
+            }
+
+            &.blur_apps &__app {
+                filter: blur(1px);
+            }
+
+            &.installing_done &__app {
+                scale: 1;
+                filter: unset;
+            }
+
+            &:hover &__app > .appBorder {
+                opacity: 1;
+            }
+            &__app {
+                background-color: inherit;
+                position: relative;
+                margin: variables.$default_padding 0;
+                border-radius: variables.$default_border_raduis * .5;
+                overflow: hidden;
+                cursor: pointer;
+
+                &.installing__ {
+                    filter: unset !important;
+                    scale: 1.02;
+                }
+
+                &:not(.show_path) .app_folder_path{
+                    // opacity: 0 !important;
+                    // visibility: hidden !important;
+                    display: none !important;
+                }
+                // background-color: red;
+                // box-shadow: rgba(0, 0, 0, 0.05) 2px 1px 4px 2px, 
+                //             rgba(0, 0, 0, 0.04) -2px -2px 4px 2px;
+
+                &:hover::before {
+                    opacity: 1;
+                }
+                
+                .error_content {
+                    position: absolute;
+                    @include flex($alignItems: flex-start, $justifyContent: center);
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100% ;
+                    z-index: 6;
+                    border-radius: inherit;
+                    transform: translateY(110%);
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: opacity .1s, visibility .1s, transform .2s ease-out;
+                    background-color: variables.$gray_color_2;
+                    overflow-y: auto;
+
+                    &.show {
+                        opacity: 1;
+                        visibility: visible;
+                        transform: translateY(0%);
+                    }
+
+                    .error_details {
+                        flex: 80%;
+                        height: inherit;
+                        border-radius: inherit;
+                        // @include flex($alignItems: center, $justifyContent: flex-start );
+                        overflow-y: auto;
+                        padding: variables.$default_padding;
+                    }
+
+                    .error_actions {
+                        flex: 20%;
+                        height: inherit;
+                        @include flex($alignItems: center, $justifyContent: center, $flexDirection: column);
+
+                        button.error_report_btn {
+                            // font-size: variables.$default_font_size * 1.1;
+                            color: variables.$primaryColor;
+                            @include Button(transparent, calc(variables.$default_padding * .3) calc(variables.$default_padding), variables.$primaryColor );
+
+                            &:hover {
+                                color: variables.$white;
+                            }
+                        }
+                        button.close_error_box {
+                            @include Button(transparent, calc(variables.$default_padding * .3) calc(variables.$default_padding), variables.$white_1 );
+                            margin-top: variables.$default_padding * .5;
+                        }
+                    }
+                }
+                
+                .appContents {
+                    background-color: inherit;
+                    // background-color: blue;
+                    position: relative;
+                    width: calc(100% - 2px);
+                    height: calc(100% - 2px);
+                    margin: 1px;
+                    border-radius: inherit;
+                    @include flex();
+                    padding: variables.$default_padding;
+                    padding-left: 0;
+                    z-index: 2;
+
+                }
+
+                &::before,
+                .appBorder {
+                    position: absolute;
+                    content: "";
+                    height: 100%;
+                    width: 100%;
+                    background: radial-gradient(
+                                        var(--hover_effect_width) circle at var(--mouse-x) var(--mouse-y),  
+                                        rgba(255, 255, 255, .04),
+                                        transparent 60%
+                                    );
+                    top: 0;
+                    left: 0;
+                    border-radius: inherit;
+                    opacity: 0;
+                    transition: opacity 500ms; 
+                }
+
+                &::before {
+                    z-index: 3;
+                    // background-color: red;
+                    pointer-events: none;
+                }
+
+                .appBorder {
+                    background: radial-gradient(
+                                        var(--hover_border_width) circle at var(--mouse-x) var(--mouse-y),  
+                                        rgba(164, 15, 255, .8),
+                                        transparent 30%
+                                    );
+                    z-index: 1;
+                }
+
+                &:hover .app_selectedIcon,
+                &.selected .app_selectedIcon {
+                    filter: brightness(100%);
+                }
+
+                &.show_full_name .app_name::before {
+                    
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                }
+
+                .app_selectedIcon {
+                    flex: 1;
+                    // border: 1px solid red;
+                    align-self: center;
+                    @include flex($justifyContent: center, $alignItems: center);
+                    filter: brightness(80%);
+
+                    svg {
+                        width: variables.$svg_width * 2;
+                        height: variables.$svg_height * 2;
+                        fill: variables.$primaryColor;
+                    }
+                }
+
+                &__left {
+                    flex: 6;
+                    @include flex($alignItems: center);
+                    // border: 1px solid black;
+                    overflow: hidden;
+                    // padding-left: variables.$default_padding * .5;
+
+                    img.app_logo {
+                        width: variables.$app_logo_size;
+                        height: variables.$app_logo_size;
+
+                        // border: 1px solid red;
+                        border-radius: variables.$default_border_raduis * .5;
+                    }
+                    .app_info {
+                        // border: 1px solid green;
+                        flex-grow: 1;
+                        @include flex($alignItems: left, $flexDirection: column, $justifyContent: space-around);
+                        padding-left: variables.$default_padding * .7;
+
+                        .app_name_type {
+                            @include flex();
+
+                            .app_name {
+                                position: relative;
+                                font-size: variables.$default_font_size * 1.2;
+                                // overflow: hidden;
+                                // max-width: calc(random(10) + 20) + ch;
+                                white-space: nowrap;
+                                // text-overflow: ellipsis;
+
+                               
+                                &::before {
+                                    content: attr(data-name);
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    width: attr(data-width-ch) + ch;
+                                    height: 100%;
+                                    opacity: 0;
+                                    visibility: hidden;
+                                    background-color: variables.$gray_color_1;
+                                    // overflow: auto;
+                                }
+                            }
+
+                            .app_type {
+                                background: variables.$primaryColor;
+                                @include flex($alignItems: center, $justifyContent: center);
+                                padding: variables.$default_padding * .2 variables.$default_padding * .5;
+                                border-radius: variables.$default_border_raduis * .5;
+                                font-size: variables.$default_font_size;
+                                margin-left: variables.$default_padding;
+                                
+                                &.hide {
+                                    display: none;
+                                }
+                            }
+                        }
+
+                        .app_more_info {
+                            @include flex();
+
+                            &.show_apk_type > .app_more_info__apk_type {
+                                display: block !important;
+                            }
+                            &.show_apk_size > .app_more_info__apk_size {
+                                display: block !important;
+                            }
+                            &__apk_type,
+                            &__apk_size {
+                                display: none;
+                            }
+
+                            p {
+                                position: relative;
+                                padding: variables.$default_font_size * .2 variables.$default_font_size * 1.5 variables.$default_font_size * .2 0;
+                                color: variables.$muteTextColor;
+                                font-size: variables.$default_font_size * .9;
+
+                            }
+                            
+                        }
+
+                        .app_folder_path{
+                            // opacity:1;
+                            // visibility: visible;
+                            display: block;
+
+                            p {
+                                
+                                font-size: variables.$default_font_size * .9;
+                            }
+                        }
+
+                    }
+                }
+
+                &__right {
+                    flex: 2;
+                    @include flex($alignItems: center);
+                    z-index: 5;
+                    
+                    .status_wrapper {
+                        flex: 1;
+                        // position: relative;
+                        // border: 1px solid red;
+                        @include flex($flexDirection: column);
+                        height: variables.$default_font_size * 2;
+                        overflow: hidden;
+
+                        .status {
+                            // display: inline-block;
+                            align-self: flex-end;
+                            @include flex($alignItems: center, $justifyContent: center);
+                            // border: 1px solid blue;
+                            min-height: variables.$default_font_size * 2;
+                            height: variables.$default_font_size * 2;
+                            font-size: variables.$default_font_size * 1.2;
+                            font-weight: bold;
+                            width: fit-content;
+
+                            background: linear-gradient(90deg, 
+                                                        variables.$white,
+                                                        variables.$primaryColor, 
+                                                        variables.$muteTextColor, 
+                                                        variables.$white);
+                            background-size: 300%;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            -webkit-background-clip: text;
+                            // position: absolute;
+                            animation: animateStatus 6s linear infinite;
+
+                            &.Size,
+                            &.Done,
+                            &.Not.Installed {
+                                
+                                background: none;
+                                background-size: 0%;
+                                -webkit-text-fill-color: variables.$white;
+                                background-clip: unset;
+                                -webkit-background-clip: unset;
+                            }
+
+                            &.Not.Installed,
+                            &.Error{
+                                -webkit-text-fill-color: variables.$red;
+                            }
+
+                            &.Error:hover {
+                                padding: 0 variables.$default_padding * .3;
+                                background: variables.$white_1 !important;
+                            }
+                            &.Cancelled {
+                                -webkit-text-fill-color: variables.$cancelled;
+                            }
+
+                            &.Done {
+                                -webkit-text-fill-color: variables.$primaryGreenColor;
+                            }
+
+                            &.Error .exclamation_icon {
+                                // background-color: variables.$white_1;
+                                border-radius: 50%;
+                                display: inline-flex;
+                                margin-left: 4px;
+                                
+                                svg {
+                                    fill: variables.$red;
+                                }
+                            }
+                        }
+                    }
+
+                    // .app_checked {
+                    //     stroke: variables.$primaryColor;
+                    //     stroke-width: 4px;
+                    //     // border: 1px solid red;    
+                    //     margin-left: variables.$default_padding ;
+                    //     // transform: translateX(variables.$svg_width * 1.3);
+                    //     opacity: 0;
+                    //     visibility: hidden;
+                    //     scale: 0;
+                    //     transition: transform .2s ease,
+                    //                 opacity .1s ease,
+                    //                 visibility .1s ease,
+                    //                 scale .1s cubic-bezier(0.075, 0.82, 0.165, 1);
+                    // }
+                    .app_size {
+                        transition: transform .1s ease;
+                    }
+                }
+            }
+        }
+        &__bottom {
+            // border: 1px solid red;
+            @include flex($justifyContent: space-between, $alignItems: center);
+            // padding-right: variables.$default_padding ;
+            
+            &__left {
+                // flex: 1;
+                // border: 1px solid red;
+                cursor: pointer;
+                @include flex($justifyContent: center, $alignItems: center);
+                padding-right: calc(variables.$default_padding * 2);
+
+                svg {
+                    
+                    width: variables.$svg_width * 1.8;
+                    height: variables.$svg_height * 1.8;
+                    fill: variables.$primaryColor;
+                }
+                p {
+                    cursor: pointer;
+                    font-size: variables.$default_font_size;
+                    padding-left: variables.$default_padding * .7;
+                    // color: variables.$primaryColor;
+                    user-select: none;
+                }
+            }
+
+            &__right {
+                // flex: 4;
+                // border: 1px solid blue;
+                @include flex($alignItems: center);
+
+                .apps_to_install_info {
+                    margin-right: variables.$default_padding;
+                    cursor: pointer;
+                }
+
+                .apps_install_btn {
+                    font-size: variables.$default_font_size * 1.1;
+                    @include Button(variables.$primaryColor, calc(variables.$default_padding / 2) calc(variables.$default_padding * 1.5), variables.$primaryColor );
+                    filter: brightness(100%);
+                    pointer-events: all;
+                    // cursor: pointer;
+
+                    &.disabled {
+                        filter: brightness(50%);
+                        pointer-events: none;
+                        cursor: not-allowed;
+                    }
+                }
+
+            }
+        }
+    }
+    &__right {
+        flex: 30%;
+        background-color: variables.$gray_color_1;
+        @include flex($alignItems: center, $justifyContent: center);
+
+
+        .not_connected_device {
+            position: relative;
+            width: 70%;
+            height: 80%;
+            border-radius: variables.$default_border_raduis;
+            // border: 3px dashed variables.$gray_color_4;
+            background-color: variables.$gray_color_4;
+//             /*Horizontal*/
+                // background-image: linear-gradient(to right, black 33%, rgba(255,255,255,0) 0%);
+                // background-position: bottom;
+                // background-size: 3px 1px;
+                // background-repeat: repeat-x;
+
+                // /*Vertical*/
+                // background-image: linear-gradient(black 33%, rgba(255,255,255,0) 0%);
+                // background-position: right;
+                // background-size: 1px 3px;
+                // background-repeat: repeat-y;
+            @include flex($alignItems: center, $justifyContent: center, $flexDirection: column);
+          
+            .android_svg {
+                width: variables.$svg_width * 10;
+                height: variables.$svg_height * 10;
+                fill: variables.$android_green;
+            }
+
+            p {
+                padding-top: variables.$default_padding * 5;
+                font-size: variables.$default_font_size * 1.3;
+
+                span {
+                    display: inline-block;
+                    animation: upAdown 1s cubic-bezier(1, 0.47, 0.18, 0.7) infinite;
+                    animation-delay: calc(.5s * var(--s));
+                }
+            }
+        }
+
+        .selected_by_total_devices {
+            p {
+                font-size: variables.$default_font_size * 1.1;
+
+                span {
+                    font-size: variables.$default_font_size * 1.2;
+                }
+            }
+        }
+
+        .connected_devices { 
+            position: relative;
+            width: 100%;
+            height: 100%;
+            @include flex($alignItems: center, $justifyContent: space-evenly, $flexDirection: column);
+            overflow-x: auto;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            .model_names_tabs {
+                position: relative;
+                // top: (variables.$default_padding * 2);
+                // left: 0;
+                width: 100%;
+                @include flex($alignItems: center, $justifyContent: center);
+
+                .model_name_tab {
+                    @include flex($alignItems: center, $justifyContent: space-between);
+                    cursor: pointer; 
+
+                    &.selected span{
+                        color: variables.$primaryColor;
+                    }
+                    &:not(.current_showing_model) {
+                        display: none;
+
+                        span {
+                            font-size: variables.$default_font_size * 1.1;
+                        }
+                    }
+                    &:not(.current_showing_model) svg,
+                    &.current_showing_model .left_arrow_span svg,
+                    &.current_showing_model .right_arrow_span svg  {
+                        display: none;
+                    }
+
+                    &:not(.current_showing_model) .left_arrow_span svg,
+                    &:not(.current_showing_model) .right_arrow_span svg {
+                        display: block;
+                    }
+
+                    svg {
+                        width: variables.$svg_width * .8;
+                        height: variables.$svg_height * .8;
+                        stroke: variables.$primaryColor;
+                        stroke-width: 50;
+                    }
+                    span {
+                        padding-left: variables.$default_padding * .5;
+                        font-size: variables.$default_font_size * 1.35;
+                    }
+                }
+            }
+
+            .current_showing_device {
+                position: relative;
+                width: 70%;
+                height: 80%;
+                // border: 1px solid blue;
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+
+                
+            }
+            .mobile_device {
+                position: relative;
+                // border: 1px solid red;
+                width: 100%;
+                height: 90%;
+                margin-top: 5%;
+                margin-right: 8%;
+                border-radius: variables.$default_border_raduis;
+                background-color: variables.$gray_color_4;
+                // transform: translateX(-108%);
+                transition: all .1s;
+                cursor: pointer;
+
+                &.selected .mobile_device__screen .status_bar {
+                    &::after {
+                        content: "Selected";
+                        position: absolute;
+                        top: 50%;
+                        left: 5%;
+                        // width: 70%;
+                        // height: 70%;
+                        padding: variables.$default_padding * .2 variables.$default_padding * .5;
+                        transform: translate(-5%, -50%);
+                        // border-radius: 2px solid variables.$gray;
+                        background-color: variables.$primaryColor;
+                        border-radius: variables.$default_border_raduis * .5;
+                        // filter: contrast(140%);
+                    }
+                }
+
+                &.current_showing {
+                    margin-top: 0;
+                    height: 100%;
+                }
+                &::before,
+                .mobile_device__screen
+                 {
+                    content: "";
+                    position: absolute;
+                    inset: .5em .2em ;
+                    // border: 1px solid blue;
+                    background-color: variables.$gray_color_2;
+                    border-radius: inherit;
+                }
+                &__notch {
+                    position: absolute;
+                    top: 6%;
+                    left: 90%;
+                    transform: translate(-50%, -90%);
+                    width: 1.4em;
+                    height: 1.4em;
+                    border-radius: variables.$default_border_raduis;
+                    background-color: variables.$gray_color_4;
+                    z-index: 2;
+
+                    
+                }
+                .mobile_device__screen {
+                    border-radius: inherit;
+                    // background-color: variables.$gray_8;
+
+                    .status_bar {
+                        position: relative;
+                        border-top-left-radius: inherit;
+                        border-top-right-radius: inherit;
+                        height: 3em;
+                        // border: 1px solid red;
+                        // background-color: variables.$primaryColor;
+                    }
+
+                    .app_screen {
+                        border-bottom-left-radius: inherit;
+                        border-bottom-right-radius: inherit;
+                        // // background-color: blue;
+                        // border: 1px solid red;
+                        height: calc(100% - 2em);
+                        padding: variables.$default_padding;
+
+
+                        .label {
+                            font-size: variables.$default_font_size;
+                            color: variables.$muteTextColor;
+                            // border: 1px solid blue;
+                        }
+
+                        .value {
+                            padding: variables.$default_padding * .5 0;
+                            font-size: variables.$default_font_size * 1.1;
+                        }
+
+                        .connected_device {
+                            // border: 1px solid red;
+                            @include flex($flexDirection: column);
+                            height: 100%;
+                            margin-bottom:  variables.$default_padding * 1.5;
+                            padding: variables.$default_padding * .5 0;
+                            border-radius: variables.$default_border_raduis * .4;
+
+                            .brand {
+                                // flex: 1;
+                                font-size: variables.$default_font_size * 2.5;
+                                font-weight: 900;
+                            }
+
+                            .installation_logs {
+                                flex: 1;
+                                height: auto;
+                                overflow-y: auto;
+                                margin-top: variables.$default_padding * 2;
+
+                                
+                                div {
+                                    // border: 1px solid blue;
+
+                                    .xapk_more_info {
+                                        padding-left: calc(variables.$svg_width + variables.$default_padding);
+                                    }
+
+                                    p {
+                                        @include flex($alignItems: center);
+                                        // border: 1px solid red;
+                                        padding: calc(variables.$default_padding * .5) 0;
+                                        
+                                        .app_name, 
+                                        .other {
+                                            padding: 0 calc(variables.$default_padding * .3);
+                                        }
+                                        .icon {
+                                            @include flex($alignItems: center, $justifyContent: center);
+
+                                            &.error svg {
+                                                fill: variables.$red;
+                                            }
+                                            &.cancelled svg path {
+                                                fill: variables.$cancelled;
+                                            }
+                                            &.complete svg {
+                                                fill: variables.$primaryGreenColor;
+                                            }
+                                            svg {
+                                                @include flex($alignItems: center);
+                                                margin-right: variables.$default_padding * .6;
+                                            }
+                                        }
+                                        .app_name {
+                                            // padding: 0 variables.$default_padding * .5;
+                                            color: variables.$primaryColor;
+                                            font-weight: 600;
+                                        }
+
+                                        .apk_type {
+                                            color: variables.$muteTextColor;
+                                        }
+                                    }
+                                    
+                                }
+                            }
+
+                            .model_vs_av {
+                                // flex: 1;
+                                // border: 1px solid red;
+                                padding-top: variables.$default_padding * .5;
+                                @include flex($alignItems: baseline);
+
+                                .model {
+                                    font-size: variables.$default_font_size * 2;
+                                    font-weight: 600;
+                                }
+
+                                .android_version {
+                                    // padding-left : variables.$default_padding;
+                                }
+
+                            }
+                            
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
