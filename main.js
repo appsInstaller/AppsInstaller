@@ -3,7 +3,7 @@ const ipc = ipcMain
 const process = require('process');
 const EventEmitter = require('events')
 // const log = require('electron-log');
-// const {autoUpdater} = require("electron-updater");
+const {autoUpdater} = require("electron-updater");
 
 const loadingEvents = new EventEmitter()
 
@@ -90,7 +90,7 @@ const createWindow = (width, height) => {
 // });
 
 app.whenReady().then(() => {
-    // autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdatesAndNotify();
 
      // We cannot require the screen module until the app is ready.
     const { screen } = require('electron')
