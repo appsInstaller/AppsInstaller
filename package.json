@@ -1,6 +1,6 @@
 {
   "name": "apps-installer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,6 @@
   },
   "build": {
     "appId": "Apps Installer",
-    
     "publish": [
       {
         "provider": "github",
@@ -46,6 +45,7 @@
     "babel-polyfill": "^6.26.0",
     "electron-json-storage": "^4.5.0",
     "electron-reloader": "^1.2.3",
+    "electron-updater": "^5.3.0",
     "google-play-scraper": "^9.1.1",
     "googleapis": "^108.0.0",
     "node-apk": "^1.1.1",
@@ -56,7 +56,6 @@
   },
   "devDependencies": {
     "electron": "^20.1.4",
-    "electron-rebuild": "^3.2.9",
-    "electron-updater": "^5.3.0"
+    "electron-rebuild": "^3.2.9"
   }
 }
