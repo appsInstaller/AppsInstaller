@@ -4,11 +4,30 @@ const process = require('process');
 const EventEmitter = require('events')
 // const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
+var path = require("path")
 
+autoUpdater.setFeedURL({
+    provider: 'github',
+    repo: 'appsInstaller',
+    owner: 'appsInstaller',
+    private: true,
+    token: '<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>'
+})
+
+autoUpdater.updateConfigPath = path.join(
+    __dirname,
+    'app-update.yml'
+);
 const loadingEvents = new EventEmitter()
 
+Object.defineProperty(app, 'isPackaged', {
+  get() {
+    return true;
+  }
+});
+let win = false
 const createWindow = (width, height) => {
-    let win = new BrowserWindow({
+    win = new BrowserWindow({
         // minWidth : width,
         // minHeight : height,
         width,
@@ -25,16 +44,14 @@ const createWindow = (width, height) => {
     })
     
     win.loadFile('index.html')
+    win.webContents.send("app_version", app.getVersion())
+
     // Our loadingEvents object listens for 'finished'
     // loadingEvents.on('finished', () => {
     //     win.loadFile('index.html')
     // })
 
     // Controllers
-    ipc.on("app_ready", () =>{
-        console.log("main ready")
-        loadingEvents.emit('finished')
-    })
     ipc.on("close_window", () =>  {
         win.close();
     })
@@ -69,28 +86,32 @@ const createWindow = (width, height) => {
 
 // autoUpdater.on('checking-for-update', () => {
 //     console.log('Checking for update...');
+//     win.webContents.send("dirPaths", 'update_avaiable')
 // })
-// autoUpdater.on('update-available', (info) => {
-//     console.log('Update available.');
-// })
+autoUpdater.on('update-available', (info) => {
+    console.log('Update available.', JSON.stringify(info));
+    win.webContents.send("app_update", {'update_avaiable': JSON.stringify(info)})
+})
 // autoUpdater.on('update-not-available', (info) => {
-//     console.log('Update not available.');
+//     console.log('Update not available.', info);
+//     win.webContents.send("dirPaths", {'update_not_avaiable': JSON.stringify(info)})
 // })
 // autoUpdater.on('error', (err) => {
 //     console.log('Error in auto-updater. ' + err);
 // })
-// autoUpdater.on('download-progress', (progressObj) => {
-//     let log_message = "Download speed: " + progressObj.bytesPerSecond;
-//     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-//     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-//     console.log('log_message', log_message);
-// })
-// autoUpdater.on('update-downloaded', (info) => {
-//     console.log('Update downloaded');
-// });
+autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    console.log('log_message', log_message);
+    win.webContents.send("app_update", {'update_in_download_progress': log_message})
+})
+autoUpdater.on('update-downloaded', (info) => {
+    console.log('Update downloaded', info);
+    win.webContents.send("app_update", {'update_downloaded': JSON.stringify(info)})
+});
 
 app.whenReady().then(() => {
-    autoUpdater.checkForUpdatesAndNotify();
 
      // We cannot require the screen module until the app is ready.
     const { screen } = require('electron')
@@ -103,6 +124,7 @@ app.whenReady().then(() => {
     app.on("activate", () => {
         if(BrowserWindow.getAllWindows().length === 0) createWindow(width / 1.2, height / 1.2)
     })
+    autoUpdater.checkForUpdatesAndNotify();
 })
 
 app.on("window-all-closed", () => {

@@ -131,11 +131,26 @@
             <div class = "mainWindow__right">
                 
             </div>
+
+            <span class = 'app_version'></span>
+        </div>
+
+        <!-- Update PopUp -->
+        <div class = "popUpBackground show"  >
+            <!-- <div class = 'popUp app_update_available'>
+
+            </div> -->
+            <div class = 'popUp app_update'>
+
+            </div>
+            <!-- <div class = 'popUp app_update_finish'>
+
+            </div> -->
         </div>
 
         <!-- Email Form PopUp -->
-        <div class = "email_form_popUp"  >
-            <form id = 'email_form' autocomplete="off" method="post" enctype="multipart/form-data">
+        <div class = "popUpBackground"  >
+            <form id = 'email_form' class = "popUp" autocomplete="off" method="post" enctype="multipart/form-data">
                 <div class = "form_header">
                     <div class = 'select_mail_types' onclick="change_mail_type(this)">
                         <span class = "mail_type_value" data-value = 'feedback'  >Feedback</span>

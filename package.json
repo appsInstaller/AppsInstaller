@@ -1,35 +1,43 @@
 {
   "name": "apps-installer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron  .",
     "build": "electron-builder",
-    "publish": "electron-builder -p always"
+    "publish": "electron-builder build --win -p always"
   },
   "build": {
     "appId": "Apps Installer",
+    
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "appsInstaller",
+        "repo": "appsInstaller"
+      }
+    ],
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "icon.ico"
+      "icon": "./icon.ico",
+      "publish": [
+        {
+          "provider": "github"
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
-      "installerIcon": "icon.ico",
-      "uninstallerIcon": "icon.ico",
+      "installerIcon": "./icon.ico",
+      "uninstallerIcon": "./icon.ico",
       "uninstallDisplayName": "Apps Installer",
       "license": "license.md",
       "allowToChangeInstallationDirectory": true
-    },
-    "publish": [
-      {
-        "provider": "github"
-      }
-    ]
+    }
   },
   "author": "",
   "license": "ISC",

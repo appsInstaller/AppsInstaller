@@ -159,7 +159,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   flex: 1;
 }
 
-.email_form_popUp {
+.popUpBackground {
   position: absolute;
   top: 0;
   left: 0;
@@ -175,14 +175,14 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   visibility: hidden;
   transition: all 0.1s;
 }
-.email_form_popUp.show {
+.popUpBackground.show {
   opacity: 1;
   visibility: visible;
 }
-.email_form_popUp.show form {
+.popUpBackground.show .popUp {
   transform: translateY(0%);
 }
-.email_form_popUp form {
+.popUpBackground .popUp {
   width: 40%;
   -webkit-app-region: no-drag;
   font-size: 0.99rem;
@@ -194,7 +194,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   transform: translateY(-60%);
   transition: all 0.1s ease-in;
 }
-.email_form_popUp form .form_header {
+.popUpBackground .popUp .form_header {
   border-radius: 0.54rem;
   display: flex;
   flex-direction: row;
@@ -202,10 +202,10 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   align-items: center;
   padding: 0 0 0.75rem 0;
 }
-.email_form_popUp form .form_header .add_attachment_container {
+.popUpBackground .popUp .form_header .add_attachment_container {
   position: relative;
 }
-.email_form_popUp form .form_header .add_attachment_container #add_attachment_input {
+.popUpBackground .popUp .form_header .add_attachment_container #add_attachment_input {
   position: absolute;
   top: 0;
   left: 0;
@@ -213,30 +213,30 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   height: 100%;
   opacity: 0;
 }
-.email_form_popUp form .form_header .add_attachment_container .add_attachment {
+.popUpBackground .popUp .form_header .add_attachment_container .add_attachment {
   background: rgba(255, 255, 255, 0.1);
   padding: 0.45rem 0.9rem;
   border-radius: 0.45rem;
   cursor: pointer;
   font-size: 1.08rem;
 }
-.email_form_popUp form .form_header .add_attachment_container .add_attachment:hover {
+.popUpBackground .popUp .form_header .add_attachment_container .add_attachment:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
-.email_form_popUp form .form_header .select_mail_types {
+.popUpBackground .popUp .form_header .select_mail_types {
   border-radius: inherit;
   position: relative;
   width: 25%;
   cursor: pointer;
 }
-.email_form_popUp form .form_header .select_mail_types span {
+.popUpBackground .popUp .form_header .select_mail_types span {
   display: inline-block;
   font-size: 1.26rem;
   padding: 0.3rem 0.15rem;
   width: 100%;
   user-select: none;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown {
+.popUpBackground .popUp .form_header .select_mail_types .mail_types_dropdown {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -249,28 +249,28 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: inherit;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown.show {
+.popUpBackground .popUp .form_header .select_mail_types .mail_types_dropdown.show {
   display: block;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span {
+.popUpBackground .popUp .form_header .select_mail_types .mail_types_dropdown span {
   border-radius: none !important;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span:first-child {
+.popUpBackground .popUp .form_header .select_mail_types .mail_types_dropdown span:first-child {
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span:last-child {
+.popUpBackground .popUp .form_header .select_mail_types .mail_types_dropdown span:last-child {
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: inherit;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_types_dropdown span:hover {
+.popUpBackground .popUp .form_header .select_mail_types .mail_types_dropdown span:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-.email_form_popUp form .form_header .select_mail_types .mail_type_value {
+.popUpBackground .popUp .form_header .select_mail_types .mail_type_value {
   position: relative;
   width: 100%;
 }
-.email_form_popUp form .form_header .select_mail_types .mail_type_value::before {
+.popUpBackground .popUp .form_header .select_mail_types .mail_type_value::before {
   content: "";
   position: absolute;
   top: 55%;
@@ -280,7 +280,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   height: 0.4em;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.email_form_popUp form .form_header .select_mail_types .mail_type_value::after {
+.popUpBackground .popUp .form_header .select_mail_types .mail_type_value::after {
   content: "";
   position: absolute;
   top: 55%;
@@ -290,22 +290,22 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   height: 2px;
   background-color: #282828;
 }
-.email_form_popUp form .form_contents {
+.popUpBackground .popUp .form_contents {
   border-radius: 0.54rem;
   background-color: #282828;
   padding: 0.75rem;
 }
-.email_form_popUp form .form_contents .attchments {
+.popUpBackground .popUp .form_contents .attchments {
   position: relative;
   border-radius: inherit;
   height: 100px;
   overflow-x: auto;
   white-space: nowrap;
 }
-.email_form_popUp form .form_contents .attchments::-webkit-scrollbar {
+.popUpBackground .popUp .form_contents .attchments::-webkit-scrollbar {
   display: none;
 }
-.email_form_popUp form .form_contents .attchments .attachment {
+.popUpBackground .popUp .form_contents .attchments .attachment {
   position: relative;
   display: inline-block;
   width: 70px;
@@ -314,7 +314,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   border-radius: inherit;
   margin-right: 0.75rem;
 }
-.email_form_popUp form .form_contents .attchments .attachment .attachment_content {
+.popUpBackground .popUp .form_contents .attchments .attachment .attachment_content {
   position: absolute;
   top: 0;
   left: 0;
@@ -323,7 +323,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   border-radius: inherit;
   background-color: rgba(255, 255, 255, 0.2);
 }
-.email_form_popUp form .form_contents .attchments .attachment .attachment_content:not([data-has_file=true])::before {
+.popUpBackground .popUp .form_contents .attchments .attachment .attachment_content:not([data-has_file=true])::before {
   content: attr(data-attachment_type);
   position: absolute;
   top: 50%;
@@ -334,12 +334,12 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   color: #CBC7C7;
   font-weight: bolder;
 }
-.email_form_popUp form .form_contents .attchments .attachment .attachment_content img {
+.popUpBackground .popUp .form_contents .attchments .attachment .attachment_content img {
   width: inherit;
   height: inherit;
   border-radius: inherit;
 }
-.email_form_popUp form .form_contents .attchments .attachment .remove_attachment_btn {
+.popUpBackground .popUp .form_contents .attchments .attachment .remove_attachment_btn {
   position: absolute;
   right: -10px;
   top: -10px;
@@ -354,11 +354,11 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   cursor: pointer;
   z-index: 2;
 }
-.email_form_popUp form .form_contents .attchments .attachment .remove_attachment_btn svg {
+.popUpBackground .popUp .form_contents .attchments .attachment .remove_attachment_btn svg {
   width: 0.8rem;
   height: 0.8rem;
 }
-.email_form_popUp form .form_contents textarea {
+.popUpBackground .popUp .form_contents textarea {
   position: relative;
   resize: none;
   font-size: 0.99rem;
@@ -368,46 +368,46 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   border-radius: inherit;
   width: 100%;
 }
-.email_form_popUp form .form_contents textarea.require {
+.popUpBackground .popUp .form_contents textarea.require {
   border: 1px solid #ff0909;
 }
-.email_form_popUp form .form_contents .form_bottom {
+.popUpBackground .popUp .form_contents .form_bottom {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
-.email_form_popUp form .form_contents .form_bottom p {
+.popUpBackground .popUp .form_contents .form_bottom p {
   display: flex;
   flex-direction: row;
   justify-content: left;
   align-items: center;
 }
-.email_form_popUp form .form_contents .form_bottom p span.warning {
+.popUpBackground .popUp .form_contents .form_bottom p span.warning {
   color: #CBC7C7;
 }
-.email_form_popUp form .form_contents .form_bottom p span.warning span {
+.popUpBackground .popUp .form_contents .form_bottom p span.warning span {
   color: #CBC7C7;
   padding: 0 0.15rem;
 }
-.email_form_popUp form .form_contents .form_bottom .form_buttons button {
+.popUpBackground .popUp .form_contents .form_bottom .form_buttons button {
   font-size: 1.08rem;
   border-radius: 0.54rem;
 }
-.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=submit] {
+.popUpBackground .popUp .form_contents .form_bottom .form_buttons button[type=submit] {
   background: #A40FFF;
   padding: 0.375rem 0.75rem;
   border-radius: 0.45rem;
   cursor: pointer;
 }
-.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=submit]:hover {
+.popUpBackground .popUp .form_contents .form_bottom .form_buttons button[type=submit]:hover {
   background-color: #A40FFF;
 }
-.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=submit].disabled {
+.popUpBackground .popUp .form_contents .form_bottom .form_buttons button[type=submit].disabled {
   filter: brightness(60%);
   pointer-events: none;
 }
-.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=object] {
+.popUpBackground .popUp .form_contents .form_bottom .form_buttons button[type=object] {
   margin-right: 0.375rem;
   color: #CBC7C7;
   background: transparent;
@@ -415,7 +415,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   border-radius: 0.45rem;
   cursor: pointer;
 }
-.email_form_popUp form .form_contents .form_bottom .form_buttons button[type=object]:hover {
+.popUpBackground .popUp .form_contents .form_bottom .form_buttons button[type=object]:hover {
   background-color: transparent;
 }
 
@@ -529,6 +529,13 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   align-items: stretch;
   flex: 1;
   margin-top: var(--title_bar_height);
+}
+.mainWindow .app_version {
+  color: #CBC7C7;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0.375rem;
 }
 .mainWindow__left, .mainWindow__center {
   display: flex;

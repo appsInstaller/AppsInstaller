@@ -142,7 +142,7 @@ function preview_attachment_files(input) {
 function email_popUp_open(e, open) {
     e.preventDefault()
     e.stopPropagation()
-    const email_form_popUp = document.querySelector('.email_form_popUp');
+    const email_form_popUp = document.querySelector('.popUpBackground');
     const submit_btn = document.querySelector('[value="send_mail"]');
     const msg = document.querySelector('#email_form .msg')
 
@@ -1297,6 +1297,18 @@ function remove_apps() {
     window.sessionStorage.setItem("removed_apps", JSON.stringify(removed_apps))
 }   
 
+ipc.on("app_update", async (_, args) => {
+    console.log('args', args)
+    const key = Object.keys(args)[0];
+    const value = Object.values(args)[0];
+    console.log('key', key)
+    console.log('value', value)
+    const container = document.querySelector('.app_update');
+
+    const p = document.createElement('p')
+    p.innerHTML = `${key} | ${value}`
+    container.append(p)
+})
 ipc.on("dirPaths", async (_, args) => {
     let active_dir = false
     const existed_dirs = [...document.querySelectorAll('.mainWindow__left__folders_list_folder')].map(f => f.getAttribute('data-id'))
@@ -2190,8 +2202,13 @@ function closeWindow() {
         const folder_names = [...pinedActiveFolders].map(f => f.getAttribute('data-id'))
         window.localStorage.setItem('selected_folders', JSON.stringify(folder_names))
     }
-    ipc.send("close_window")}
+    ipc.send("close_window")
+}
 
+ipc.on("app_version", (_, ver) => {
+    document.querySelector('.app_version').innerHTML = `v ${ver}`
+})
+    
 function minimizeWindow() { ipc.send("minimize_window")}
 function resizeWindow() { ipc.send("resize_window")}
 

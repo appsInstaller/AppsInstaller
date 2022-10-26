@@ -1,0 +1,4 @@
+owner: appsInstaller
+repo: appsInstaller
+provider: github
+updaterCacheDirName: apps-installer-updater

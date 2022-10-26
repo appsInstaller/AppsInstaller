@@ -207,7 +207,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
     flex: 1;
 }
 
-.email_form_popUp {
+.popUpBackground {
     position: absolute;
     top: 0;
     left: 0;
@@ -224,12 +224,12 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
         opacity: 1;
         visibility: visible;
 
-        form {
+        .popUp {
             transform: translateY(0%);
         }
     }
 
-    form {
+    .popUp {
         width: 40%;
         -webkit-app-region: no-drag;
         font-size: variables.$default_font_size * 1.1;
@@ -591,6 +591,13 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
     flex: 1;
     margin-top: var(--title_bar_height);
 
+    .app_version {
+        color: variables.$muteTextColor;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        padding: variables.$default_padding * .5;
+    }
     &__left,
     &__center {
         @include flex($flexDirection: column);
