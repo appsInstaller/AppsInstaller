@@ -11,7 +11,7 @@ autoUpdater.setFeedURL({
     repo: 'appsInstaller',
     owner: 'appsInstaller',
     private: false,
-    token: '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'
+    token: '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'
 })
 
 autoUpdater.updateConfigPath = path.join(
