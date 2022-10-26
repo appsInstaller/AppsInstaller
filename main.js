@@ -10,8 +10,8 @@ autoUpdater.setFeedURL({
     provider: 'github',
     repo: 'appsInstaller',
     owner: 'appsInstaller',
-    private: true,
-    token: '<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>'
+    private: false,
+    token: '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'
 })
 
 autoUpdater.updateConfigPath = path.join(
