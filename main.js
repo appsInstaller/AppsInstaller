@@ -5,26 +5,26 @@ const EventEmitter = require('events')
 // const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
 var path = require("path")
-// autoUpdater.setFeedURL({
-//     provider: 'github',
-//     repo: 'appsInstaller',
-//     owner: 'appsInstaller',
-//     private: false,
-//     token: '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'
-// })
-// autoUpdater.autoDownload = false
-// // autoUpdater.allowPrerelease = true
-// autoUpdater.updateConfigPath = path.join(
-//     __dirname,
-//     'app-update.yml'
-// );
+autoUpdater.setFeedURL({
+    provider: 'github',
+    repo: 'appsInstaller',
+    owner: 'appsInstaller',
+    private: false,
+    token: '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'
+})
+autoUpdater.autoDownload = false
+// autoUpdater.allowPrerelease = true
+autoUpdater.updateConfigPath = path.join(
+    __dirname,
+    'app-update.yml'
+);
 const loadingEvents = new EventEmitter()
 
-// Object.defineProperty(app, 'isPackaged', {
-//   get() {
-//     return true;
-//   }
-// });
+Object.defineProperty(app, 'isPackaged', {
+  get() {
+    return true;
+  }
+});
 let win = false
 const createWindow = (width, height) => {
     win = new BrowserWindow({
@@ -135,7 +135,7 @@ app.whenReady().then(() => {
     app.on("activate", () => {
         if(BrowserWindow.getAllWindows().length === 0) createWindow(width / 1.2, height / 1.2)
     })
-    // autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdatesAndNotify();
 })
 
 app.on("window-all-closed", () => {
