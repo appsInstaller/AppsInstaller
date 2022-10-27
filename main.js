@@ -10,7 +10,7 @@ autoUpdater.setFeedURL({
     repo: 'appsInstaller',
     owner: 'appsInstaller',
     private: false,
-    token: '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'
+    token: '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'
 })
 autoUpdater.autoDownload = false
 // autoUpdater.allowPrerelease = true
@@ -40,6 +40,7 @@ const createWindow = (width, height) => {
             nodeIntegration: true,
             contextIsolation: false,
             devtools: true,
+            
         }
     })
     win.loadFile('index.html')
