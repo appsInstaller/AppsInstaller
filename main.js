@@ -10,7 +10,7 @@ autoUpdater.setFeedURL({
     repo: 'appsInstaller',
     owner: 'appsInstaller',
     private: false,
-    token: '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'
+    token: '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'
 })
 autoUpdater.autoDownload = false
 // autoUpdater.allowPrerelease = true
@@ -87,6 +87,7 @@ const createWindow = (width, height) => {
     
     ipc.on('download_app_update', (abortSignal) => {
         autoUpdater.downloadUpdate(abortSignal)
+        .catch((err) => console.log('err', err))
     })
 
     ipc.on('restart_app', () => {
