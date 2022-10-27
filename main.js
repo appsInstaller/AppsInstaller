@@ -1,31 +1,30 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron")
 const ipc = ipcMain
-const process = require('process');
-const EventEmitter = require('events')
-// const log = require('electron-log');
-const {autoUpdater} = require("electron-updater");
 var path = require("path")
+const process = require('process');
+const {autoUpdater} = require("electron-updater");
+
 autoUpdater.setFeedURL({
     provider: 'github',
     repo: 'appsInstaller',
     owner: 'appsInstaller',
     private: false,
-    token: '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'
+    token: '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'
 })
 autoUpdater.autoDownload = false
 // autoUpdater.allowPrerelease = true
-autoUpdater.updateConfigPath = path.join(
-    __dirname,
-    'app-update.yml'
-);
-const loadingEvents = new EventEmitter()
+// autoUpdater.updateConfigPath = path.join(
+//     __dirname,
+//     'app-update.yml'
+// );
 
-Object.defineProperty(app, 'isPackaged', {
-  get() {
-    return true;
-  }
-});
+// Object.defineProperty(app, 'isPackaged', {
+//   get() {
+//     return true;
+//   }
+// });
 let win = false
+
 const createWindow = (width, height) => {
     win = new BrowserWindow({
         // minWidth : width,
@@ -36,6 +35,7 @@ const createWindow = (width, height) => {
         frame: false,
         // x: 0,
         // y: 0,
+        icon: path.join(__dirname, 'icon.ico'),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -45,10 +45,9 @@ const createWindow = (width, height) => {
     })
     win.loadFile('index.html')
     
-    win.webContents.on('did-finish-load', function () {
-        win.webContents.send("app_version", app.getVersion())
-        // win.webContents.send("app_update", {'update_in_download_progress': { percentage: 1.3038936054668775, total_size: 1255854, transferred_size : 16375}})
-    });
+    // win.webContents.on('did-finish-load', function () {
+    //     // win.webContents.send("app_update", {'update_in_download_progress': { percentage: 1.3038936054668775, total_size: 1255854, transferred_size : 16375}})
+    // });
     // Our loadingEvents object listens for 'finished'
     // loadingEvents.on('finished', () => {
     //     win.loadFile('index.html')
@@ -84,15 +83,20 @@ const createWindow = (width, height) => {
           })
     })
     
-    
-    ipc.on('download_app_update', (abortSignal) => {
-        autoUpdater.downloadUpdate(abortSignal)
-        .catch((err) => console.log('err', err))
+    ipc.on('download_app_update', () => {
+        win.webContents.send("app_update", {'update_preparing': true})
+        
+        autoUpdater.downloadUpdate()
+        // .then(() => {
+        //     console.log("Update Finished")
+        // })
+        // .catch((err) => console.log('err -------- ', err))
     })
 
-    ipc.on('restart_app', () => {
-        app.relaunch()
-        app.exit()
+    ipc.on('restart_app_update', () => {
+        // app.relaunch()
+        // app.exit()
+        autoUpdater.quitAndInstall()
     })
 }
 
@@ -104,20 +108,16 @@ autoUpdater.on('update-available', (info) => {
     console.log('Update available.', JSON.stringify(info));
     win.webContents.send("app_update", {'update_avaiable': true})
 })
-// autoUpdater.on('update-not-available', (info) => {
-//     console.log('Update not available.', info);
-//     win.webContents.send("dirPaths", {'update_not_avaiable': JSON.stringify(info)})
-// })
+autoUpdater.on('update-not-available', (info) => {
+    console.log('Update not available.', info);
+    win.webContents.send("app_version", app.getVersion())
+})
 // autoUpdater.on('error', (err) => {
 //     console.log('Error in auto-updater. ' + err);
 // })
 
 autoUpdater.on('download-progress', (progressObj) => {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-    console.log('log_message', log_message);
-    win.webContents.send("app_update", {'update_in_download_progress': log_message})
+    win.webContents.send("app_update", {'update_in_download_progress': { percentage: progressObj.percent, total_size: progressObj.total, transferred_size : progressObj.transferred}})
 })
 autoUpdater.on('update-downloaded', (info) => {
     console.log('Update downloaded', info);

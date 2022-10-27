@@ -97,10 +97,11 @@ async function checkDevice() {
                     container.innerHTML = ""
                     document.querySelector(".apps_install_btn").classList.remove("disabled")
 
-                    const model_name_tabs = document.createElement('div')
-                    model_name_tabs.className = 'model_names_tabs'
                     
-                    const selected_by_total_devices = document.createElement('div')
+                    let model_name_tabs = document.createElement('div')
+                    model_name_tabs.className = 'model_names_tabs'
+
+                    let selected_by_total_devices = document.createElement('div')
                     selected_by_total_devices.className = 'selected_by_total_devices'
                     selected_by_total_devices.innerHTML = `
                         <p>
@@ -110,17 +111,17 @@ async function checkDevice() {
                             Device${devices.length > 1 ? "s": ''} Selected.
                         </p>
                     `
-
-                    const current_showing_device = document.createElement('div')
+                    
+                    let current_showing_device = document.createElement('div')
                     current_showing_device.className = 'current_showing_device'
 
                     for(d of devices) {
                         let [serial_no, _, product, model, device, transport_id] = d.split(" ").filter(f => f)
                         // serial_nos.push(serial_no)
+                        console.log('serial_no --------------------->', serial_no, product, model, device, transport_id)
                         const mobile_device = await create_device(serial_no, devices.indexOf(d), model.replace('model:', '').replace('_', ' '))
-                        console.log("mobile_device", mobile_device)
                         current_showing_device.append(mobile_device)
-
+                        console.log("mobile_device", mobile_device)
                         const model_name_tab = document.createElement('span');
                         model_name_tab.onclick = () => model_name_tab_clicked(serial_no)
                         model_name_tab.setAttribute('data-serial_no', serial_no)
@@ -128,16 +129,7 @@ async function checkDevice() {
                         model_name_tab.innerHTML = `<span>${model.replace('model:', '').replace('_', ' ')}</span>`
                         
                         model_name_tabs.append(model_name_tab)
-                        // console.log('serai', serial_no)
-                        // console.log('product', product)
-                        // console.log('model', model)
-                        // console.log('device', device)
-                        // console.log('transport_id', transport_id)
-                    }
-                    // console.log("serial_nos", serial_nos)
-                    // document.querySelector('.connected_devices').setAttribute('data-serial', serial_nos)
-                    // document.querySelector('.connected_devices').innerHTML = `${devices.length} Device${devices.length > 1 ? "s" : ""} Connected`
-                    device_container.append(model_name_tabs)
+                    }device_container.append(model_name_tabs)
                     device_container.append(current_showing_device)
                     device_container.append(selected_by_total_devices)
                     container.append(device_container)

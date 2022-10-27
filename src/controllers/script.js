@@ -995,6 +995,12 @@ const checkedIcon = `
     </svg>
 `
 
+const minus = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon normal_svg" viewBox="0 0 1024 1024" version="1.1">
+        <path d="M810.666667 554.666667H213.333333a42.666667 42.666667 0 0 1 0-85.333334h597.333334a42.666667 42.666667 0 0 1 0 85.333334z"/>
+    </svg>
+`
+
 const uncheckedIcon = `
     <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon main_svg" viewBox="0 0 1024 1024" version="1.1">
         <path d="M227.487 892.447c-50.919 0-92.345-41.426-92.345-92.345V222.49c0-50.14 40.791-90.932 90.932-90.932h573.291c49.347 0 89.493 40.146 89.493 89.493V801.9c0 49.925-40.622 90.547-90.548 90.547H227.487z m11.197-706.74c-27.233 0-49.387 22.155-49.387 49.388v552.817c0 27.78 22.6 50.38 50.38 50.38h546.08c26.992 0 48.957-21.96 48.957-48.957V235.254c0-27.32-22.226-49.546-49.547-49.546H238.684z"/>
@@ -1297,17 +1303,22 @@ function remove_apps() {
     window.sessionStorage.setItem("removed_apps", JSON.stringify(removed_apps))
 }   
 
-let app_update_abortController = null;
-function download_app_update() { ipc.send('download_app_update', app_update_abortController) }
+function download_app_update() { 
+    ipc.send('download_app_update') 
+}
 
-function restart_app() { ipc.send('restart_app') }
+function restart_app() { ipc.send('restart_app_update') }
+
+ipc.on("app_version", (_, ver) => {
+    console.log('app_Version------')
+    document.querySelector('.app_version').innerHTML = `v ${ver}`
+})
 ipc.on("app_update", async (_, args) => {
     console.log('args', args)
     const key = Object.keys(args)[0];
     const value = Object.values(args)[0];
     console.log('key', key)
     console.log('value', value)
-    const container = document.querySelector('.app_update');
     const app_version = document.querySelector('.app_version');
     if(key === "update_avaiable") {
         app_version.innerHTML = `
@@ -1321,6 +1332,7 @@ ipc.on("app_update", async (_, args) => {
         `
     } else if(key === 'update_in_download_progress') {
         var { percentage, total_size, transferred_size } = value;
+        console.log('value', value, percentage, total_size, transferred_size)
         app_version.innerHTML = `
         <span class = 'app_update_icon'>
             <span class = "loader main_svg"></span>
@@ -1342,11 +1354,15 @@ ipc.on("app_update", async (_, args) => {
                 Restart Now
             </button>
         `
+    } else if(key === 'update_preparing') {
+        app_version.innerHTML = `
+            <span class = 'app_update_icon'>
+                <span class = "loader main_svg"></span>
+            </span>
+            <span classs = "app_update_text">Preparing to Update ...</span>
+        `
     }
 
-    const p = document.createElement('p')
-    p.innerHTML = `${key} | ${value}`
-    container.append(p)
 })
 ipc.on("dirPaths", async (_, args) => {
     let active_dir = false
@@ -1602,20 +1618,13 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 });
                 extracting.stderr.on('data', (data) => {
                     console.error(`stderr: ${data.toString()}`);
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
                     reject({err: data.toString(), err_type: 'Error'})
                 });
 
                 extracting.on('error', (error) => {
                     if(error.name === "AbortError") {
-                        app_install_status(escaped_path, 7)
-                        add_installation_logs({app_path: data_path, app_type: 'obbapk', cancelled: 'cancelled'})
                         reject({err: error, err_type: 'AbortError'})
-                        return
                     }
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
                     reject({err: error, err_type: 'Error'})
                 // This will be called with err being an AbortError if the controller aborts
                 });
@@ -1661,8 +1670,6 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 });
                 pushing_process.stderr.on('data', (data) => {
                     console.error(`stderr: ${data.toString()}`);
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
                     reject({err: data.toString(), err_type: 'Error'})
                   });
                 pushing_process.stdout.on('data', (data) => {
@@ -1670,16 +1677,11 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                     add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs , current_pushing_percent: data.toString().substr(data.indexOf('[') + 1, data.indexOf(']') - 1).trim()}})
                 });
                 pushing_process.on('error', (error) => {
-                   console.log("error", error)
+                   console.log("error pushing_process", error)
                    if(error.name === "AbortError") {
-                       app_install_status(escaped_path, 7)
-                       console.log("HHHHHHHHHHHHHHHHHHHHHHHHH")
-                       add_installation_logs({app_path: data_path, app_type: 'obbapk', cancelled: 'cancelled'})
                        reject({err: error, err_type: 'AbortError'})
                        return
                    }
-                   app_install_status(escaped_path, 8)
-                   add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
                    reject({err: error, err_type: 'Error'})
                 // This will be called with err being an AbortError if the controller aborts
                 });
@@ -1707,29 +1709,21 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 });
                 installing_process.stderr.on('data', (data) => {
                     console.error(`stderr: ${data.toString()}`);
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
-                    reject(data.toString())
                     reject({err: data.toString(), err_type: 'Error'})
                 });
                 
                 installing_process.on('error', (error) => {
-                   console.log("error", error)
+                   console.log("error installing_process", error)
                    if(error.name === "AbortError") {
-                       app_install_status(escaped_path, 7)
-                       add_installation_logs({app_path: data_path, app_type: 'obbapk', cancelled: 'cancelled'})
                        reject({err: error, err_type: 'AbortError'})
-                       return
                    }
-                   app_install_status(escaped_path, 8)
-                   add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
                    reject({err: error, err_type: 'Error'})
                 // This will be called with err being an AbortError if the controller aborts
                 });
             })
         })
 
-        await Promise.all(install_apks).then(() => console.log('All apks Installed')).catch(err => reject(err))
+        await Promise.all(install_apks).catch(err => reject(err))
 
         // Check application is installed or not
         await new Promise((resolve, reject) => {
@@ -1748,342 +1742,286 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
             });
         })
 
-        const removeTmpFolder = new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             fs.rm(temp_dir_path, { recursive: true, force: true }, () => {
                 console.log("folder removed")
                 setTimeout(() => resolve(true), 700)
             })
             // fs.rmSync(temp_dir_path, { recursive: true, force: true });
         })
-
-
-        await removeTmpFolder
-                .then(() => console.log('Folder Removed'))
-                .then(() => {
-                    console.log("All Done --")
-                    resolve(true)
-                })
-                .catch(err => reject(err))
     })
 
 }
 async function install_splitApks(serial_no, split_apks, apk_package_name, apk_path , escaped_path, abortSignal) {
     console.log("install_splitApks")
 
-    const more_info = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .app_more_info`);
-    more_info.classList.add('show_apk_size')
-    
-    app_install_status(escaped_path, 2)
-    add_installation_logs({app_path: apk_path, app_type: 'splitapks'})
-    let temp_dir_path = path.join(tmpPath, path.basename(apk_path).split(".").at(0))
-    let apk_infos = {};
-    let extracted_apks_count = 0
-    let installed_apk_count = 0
+    return new Promise(async (resolve, reject) => {
+        const more_info = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .app_more_info`);
+        more_info.classList.add('show_apk_size')
+        
+        app_install_status(escaped_path, 2)
+        add_installation_logs({app_path: apk_path, app_type: 'splitapks'})
+        let temp_dir_path = path.join(tmpPath, path.basename(apk_path).split(".").at(0))
+        let apk_infos = {};
+        let extracted_apks_count = 0
+        let installed_apk_count = 0
 
-    console.log("temp_dir_path", temp_dir_path)
-    if (!fs.existsSync(temp_dir_path)){
-        fs.mkdirSync(temp_dir_path);
-    }
+        console.log("temp_dir_path", temp_dir_path)
+        if (!fs.existsSync(temp_dir_path)){
+            fs.mkdirSync(temp_dir_path);
+        }
 
-    app_install_status(escaped_path, 3)
-    add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: 0}})
+        app_install_status(escaped_path, 3)
+        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: 0}})
 
-    const extract_apks = split_apks.map(f => {
-        return new Promise((resolve, reject) => {
-            let apk_name = f.file
-            let temp_apk_path = `${temp_dir_path}/${apk_name}`
-            console.log("f", apk_name, temp_apk_path)
+        const extract_apks = split_apks.map(f => {
+            return new Promise((resolve, reject) => {
+                let apk_name = f.file
+                let temp_apk_path = `${temp_dir_path}/${apk_name}`
+                console.log("f", apk_name, temp_apk_path)
 
-            let extracting_app = spawn('7z', ['e', apk_path, apk_name, '-r', '-y', `-o${temp_dir_path}`], {signal: abortSignal})
+                let extracting_app = spawn('7z', ['e', apk_path, apk_name, '-r', '-y', `-o${temp_dir_path}`], {signal: abortSignal})
 
-            extracting_app.on('close', (code) => {
-                console.log("extracting_app close",  code)
-                if(code === 0) {
-                    extracted_apks_count += 1
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count}})
-                    
-                    fs.stat(temp_apk_path, (_, stats) => {
-                        apk_infos[apk_name] = stats.size
-                        resolve(true)
-                    })
-                }
+                extracting_app.on('close', (code) => {
+                    console.log("extracting_app close",  code)
+                    if(code === 0) {
+                        extracted_apks_count += 1
+                        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count}})
+                        
+                        fs.stat(temp_apk_path, (_, stats) => {
+                            apk_infos[apk_name] = stats.size
+                            resolve(true)
+                        })
+                    }
+                });
+                extracting_app.stderr.on('data', (data) => {
+                    console.log("extracting_app stderr", data)
+                    reject({err: data.toString(), err_type: 'Error'})
+                });
+
+                extracting_app.on('error', (error) => {
+                    console.log("extracting_app error", error)
+                    if(error.name === "AbortError") {
+                        reject({err: error, err_type: 'AbortError'})
+                    }
+                    reject({err: error, err_type: 'Error'})
+                // This will be called with err being an AbortError if the controller aborts
+                });
+            })
+        })
+        await Promise.all(extract_apks).then(() => console.log("All apks Extracted")).catch(err => reject(err))
+        // var get_apks = new Promise((resolve) => {
+        //     fs.readdir(temp_dir_path, (files) => {
+        //         console.log("files", files)
+        //         resolve(files)
+        //     })
+        // })
+        // const apks = await get_apks
+        var apks = fs.readdirSync(temp_dir_path);
+
+        app_install_status(escaped_path, 4)
+        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
+
+        let total_size_in_Bytes = Object.values(apk_infos).reduce((t, c) => t + parseInt(c), 0)
+
+        let create_session = new Promise((resolve, reject) => {
+            let create_session_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-create', '-S', total_size_in_Bytes], {signal: abortSignal})
+            create_session_.stdout.on('data', (data) => {
+                console.log('create_session_ stdout', data)
+                var session_id = data.toString().match(/[0-9]/g).join("")
+                resolve(session_id)
             });
-            extracting_app.stderr.on('data', (data) => {
-                console.log("extracting_app stderr", data)
-                console.error(`stderr: ${data.toString()}`);
-                app_install_status(escaped_path, 8)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-                reject({err: data.toString(), err_type: 'Error'})
-            });
-
-            extracting_app.on('error', (error) => {
-                console.log("extracting_app error", error)
+            create_session_.on('error', (error) => {
+                console.log('create_session_ error', error)
                 if(error.name === "AbortError") {
-                    app_install_status(escaped_path, 7)
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
                     reject({err: error, err_type: 'AbortError'})
-                    return
                 }
-                app_install_status(escaped_path, 8)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
                 reject({err: error, err_type: 'Error'})
             // This will be called with err being an AbortError if the controller aborts
             });
         })
-    })
-    await Promise.all(extract_apks).then(() => console.log("All apks Extracted")).catch(err => reject(err))
-    // var get_apks = new Promise((resolve) => {
-    //     fs.readdir(temp_dir_path, (files) => {
-    //         console.log("files", files)
-    //         resolve(files)
-    //     })
-    // })
-    // const apks = await get_apks
-    var apks = fs.readdirSync(temp_dir_path);
 
-    app_install_status(escaped_path, 4)
-    add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
-
-    let total_size_in_Bytes = Object.values(apk_infos).reduce((t, c) => t + parseInt(c), 0)
-
-    let create_session = new Promise((resolve, reject) => {
-        let create_session_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-create', '-S', total_size_in_Bytes], {signal: abortSignal})
-        create_session_.stdout.on('data', (data) => {
-            console.log('create_session_ stdout', data)
-            var session_id = data.toString().match(/[0-9]/g).join("")
-            resolve(session_id)
-        });
-        create_session_.on('error', (error) => {
-            console.log('create_session_ error', error)
-            if(error.name === "AbortError") {
-                app_install_status(escaped_path, 7)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                reject({err: error, err_type: 'AbortError'})
-                return
-            }
-            app_install_status(escaped_path, 8)
-            add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-            reject({err: error, err_type: 'Error'})
-        // This will be called with err being an AbortError if the controller aborts
-        });
-    })
-
-    let session_id = await create_session.catch(err => reject(err));
-    
-    const install_apks = apks.map(apk => {
-        return new Promise(async (resolve, reject) => {
-            const apkPath = path.join(temp_dir_path, apk) 
-            const apkSize = apk_infos[apk]
-            // `adb -s ${serial_no} push "${apkPath}" /data/local/tmp`
-            let push_apk = new Promise((resolve) => {
-                const push_apk_ = spawn('adb', ['-s', serial_no, 'push', apkPath, '/data/local/tmp'], {signal: abortSignal})
-                push_apk_.on('close', () => {
-                    console.log("push_apk_ close")
-                    resolve(true) });
-                
-                push_apk_.stdout.on('data', (data) => {
-                    console.log("push_apk_ data", data.toString())
-                    // resolve(session_id)
-                });
-                push_apk_.stderr.on('data', (data) => {
-                    console.log("push_apk_ stderr", data.toString())
-                    reject({err: data.toString(), err_type: 'Error'})
-                    // resolve(session_id)
-                });
-                push_apk_.on('error', (error) => {
-                    console.log("push_apk_ error", error)
-                    if(error.name === "AbortError") {
-                        app_install_status(escaped_path, 7)
-                        add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                        reject({err: error, err_type: 'AbortError'})
-                        return
-                    }
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-                    reject({err: error, err_type: 'Error'})
-                // This will be called with err being an AbortError if the controller aborts
-                });
-            })
-            await push_apk.catch(err => reject(err))
-
-            let install_apk = new Promise((resolve, reject) => {
-                const install_apk_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-write', '-S', apkSize, session_id, apks.indexOf(apk), `'/data/local/tmp/${apk}'`], {signal: abortSignal})
-
-                install_apk_.on('error', (error) => {
-                    console.log("error install_apk", error, error.name)
-                    if(error.name === "AbortError") {
-                        app_install_status(escaped_path, 7)
-                        add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                        reject({err: error, err_type: 'AbortError'})
-                        return
-                    }
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-                    reject({err: error, err_type: 'Error'})
-                // This will be called with err being an AbortError if the controller aborts
-                });
-                install_apk_.stderr.on('data', (data) => {
-                    console.log("stderr install_apk", data.toString())
-                    reject({err:  data.toString(), err_type: 'Error'})
-                    // resolve(session_id)
-                });
-                install_apk_.stdout.on('data', (data) => {
-                    console.log("stdout install_apk - ", data.toString())
-                    if(data.toString().includes("Success")) {
-                        resolve(true)
-                    } else {
-                        reject({err:  data.toString(), err_type: 'Error'})
-                    }
-                    // resolve(session_id)
-                });
-            })
-            
-            await install_apk.catch(err => reject(err))
-            
-            // shell rm /data/local/tmp/${apks[apk_index]}`
-            let remove_tmp_apk_file = new Promise((resolve, reject) => {
-                const remove_tmp_apk_file_ = spawn('adb', ['-s', serial_no, 'shell', 'rm', `'/data/local/tmp/${apk}'`], {signal: abortSignal})
-                remove_tmp_apk_file_.on('close', (code) => {
-                    console.log("close remove_tmp_apk_file_ - ", code)
-                    if(code === 0) {
-                        installed_apk_count += 1
-                        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
-                        resolve(true)
-                    }
-                });
-                remove_tmp_apk_file_.on('error', (error) => {
-                    console.log("error remove_tmp_apk_file_ - ", error)
-                    if(error.name === "AbortError") {
-                        app_install_status(escaped_path, 7)
-                        add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                        reject({err: error, err_type: 'AbortError'})
-                        return
-                    }
-                    app_install_status(escaped_path, 8)
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-                    reject({err: error, err_type: 'Error'})
-                // This will be called with err being an AbortError if the controller aborts
-                });
-                remove_tmp_apk_file_.stderr.on('data', (data) => {
-                    console.log("stderr remove_tmp_apk_file", data.toString())
-                    reject({err: data.toString(), err_type: 'Error'})
-                    // resolve(session_id)
-                });
-                remove_tmp_apk_file_.stdout.on('data', (data) => {
-                    console.log("stdout remove_tmp_apk_file - ", data.toString())
-                    // resolve(session_id)
-                });
-            })
-            
-            await remove_tmp_apk_file.catch(err => reject(err))
-            
-            resolve(true)
+        let session_id = await create_session.catch(err => reject(err))
         
-        })
-    })
-    await Promise.all(install_apks).catch(err => reject(err))
+        const install_apks = apks.map(apk => {
+            return new Promise(async (resolve, reject) => {
+                const apkPath = path.join(temp_dir_path, apk) 
+                const apkSize = apk_infos[apk]
+                // `adb -s ${serial_no} push "${apkPath}" /data/local/tmp`
+                let push_apk = new Promise((resolve) => {
+                    const push_apk_ = spawn('adb', ['-s', serial_no, 'push', apkPath, '/data/local/tmp'], {signal: abortSignal})
+                    push_apk_.on('close', () => {
+                        console.log("push_apk_ close")
+                        resolve(true) });
+                    
+                    push_apk_.stdout.on('data', (data) => {
+                        console.log("push_apk_ data", data.toString())
+                        // resolve(session_id)
+                    });
+                    push_apk_.stderr.on('data', (data) => {
+                        console.log("push_apk_ stderr", data.toString())
+                        reject({err: data.toString(), err_type: 'Error'})
+                        // resolve(session_id)
+                    });
+                    push_apk_.on('error', (error) => {
+                        console.log("push_apk_ error", error)
+                        if(error.name === "AbortError") {
+                            reject({err: error, err_type: 'AbortError'})
+                        }
+                        reject({err: error, err_type: 'Error'})
+                    // This will be called with err being an AbortError if the controller aborts
+                    });
+                })
+                await push_apk.catch(err => reject(err))
 
-    app_install_status(escaped_path, 9)
+                let install_apk = new Promise((resolve, reject) => {
+                    const install_apk_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-write', '-S', apkSize, session_id, apks.indexOf(apk), `'/data/local/tmp/${apk}'`], {signal: abortSignal})
 
-    // Commit session
-    await new Promise((resolve, reject) => {
-        const commit_session_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-commit', session_id], {signal: abortSignal})
-        commit_session_.on('close', () => resolve(true));
-        commit_session_.stderr.on('data', (data) => {
-            console.log("data commit_session_ - ", data.toString())
-            reject({err: data.toString(), err_type: 'Error'})
-            // resolve(session_id)
-        });
-        commit_session_.on('error', (error) => {
-            if(error.name === "AbortError") {
-                app_install_status(escaped_path, 7)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                reject({err: error, err_type: 'AbortError'})
-                return
-            }
-            app_install_status(escaped_path, 8)
-            add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-            reject({err: error, err_type: 'Error'})
-        // This will be called with err being an AbortError if the controller aborts
-        });
-    })
-
-    //Abadon Session
-    await new Promise((resolve, reject) => {
-        const adadon_session_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-abandon', session_id], {signal: abortSignal})
-        adadon_session_.on('close', (code) => {
-            resolve(true)
-        });
-        adadon_session_.stderr.on('data', (data) => {
-            console.log("data commit_session_ - ", data.toString())
-            reject({err: data.toString(), err_type: 'Error'})
-            // resolve(session_id)
-        });
-        adadon_session_.on('error', (error) => {
-            if(error.name === "AbortError") {
-                app_install_status(escaped_path, 7)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                reject({err: error, err_type: 'AbortError'})
-                return
-            }
-            app_install_status(escaped_path, 8)
-            add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-            reject({err: error, err_type: 'Error'})
-        // This will be called with err being an AbortError if the controller aborts
-        });
-    })
-
-    // Check application is installed or not
-    await new Promise((resolve, reject) => {
-        const installed = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
-
-        installed.stderr.on('data', (data) => {
-            console.log("data installed - ", data.toString())
-            reject({err: data.toString(), err_type: 'Error'})
-            // resolve(session_id)
-        });
-        installed.stdout.on('data', (data) => {
-            if(data) {
-                app_install_status(escaped_path, 5)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', complete: 'complete'})
-            } else {
+                    install_apk_.on('error', (error) => {
+                        console.log("error install_apk", error, error.name)
+                        if(error.name === "AbortError") {
+                            reject({err: error, err_type: 'AbortError'})
+                        }
+                        reject({err: error, err_type: 'Error'})
+                    // This will be called with err being an AbortError if the controller aborts
+                    });
+                    install_apk_.stderr.on('data', (data) => {
+                        console.log("stderr install_apk", data.toString())
+                        reject({err:  data.toString(), err_type: 'Error'})
+                        // resolve(session_id)
+                    });
+                    install_apk_.stdout.on('data', (data) => {
+                        console.log("stdout install_apk - ", data.toString())
+                        if(data.toString().includes("Success")) {
+                            resolve(true)
+                        } else {
+                            reject({err:  data.toString(), err_type: 'Error'})
+                        }
+                        // resolve(session_id)
+                    });
+                })
                 
-                app_install_status(escaped_path, 6)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-            }
-            resolve(true)
-            // resolve(session_id)
-        });
-        installed.on('error', (error) => {
-            if(error.name === "AbortError") {
-                app_install_status(escaped_path, 7)
-                add_installation_logs({app_path: apk_path, app_type: 'splitapks', cancelled: 'cancelled'})
-                reject({err: error, err_type: 'AbortError'})
-                return
-            }
-            app_install_status(escaped_path, 8)
-            add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
-            reject({err: error, err_type: 'Error'})
-        // This will be called with err being an AbortError if the controller aborts
-        });
-    })
-
-    const removeTmpFolder = new Promise((resolve, reject) => {
-        fs.rm(temp_dir_path, { recursive: true, force: true }, () => {
-            console.log("folder removed")
-            resolve(true)
-        })
-        // fs.rmSync(temp_dir_path, { recursive: true, force: true });
-    })
-
-
-    await removeTmpFolder
-            .then(() => console.log('Folder Removed'))
-            .then(() => {
-                console.log("All Done --")
+                await install_apk.catch(err => reject(err))
+                
+                // shell rm /data/local/tmp/${apks[apk_index]}`
+                let remove_tmp_apk_file = new Promise((resolve, reject) => {
+                    const remove_tmp_apk_file_ = spawn('adb', ['-s', serial_no, 'shell', 'rm', `'/data/local/tmp/${apk}'`], {signal: abortSignal})
+                    remove_tmp_apk_file_.on('close', (code) => {
+                        console.log("close remove_tmp_apk_file_ - ", code)
+                        if(code === 0) {
+                            installed_apk_count += 1
+                            add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
+                            resolve(true)
+                        }
+                    });
+                    remove_tmp_apk_file_.on('error', (error) => {
+                        console.log("error remove_tmp_apk_file_ - ", error)
+                        if(error.name === "AbortError") {
+                            reject({err: error, err_type: 'AbortError'})
+                        }
+                        reject({err: error, err_type: 'Error'})
+                    // This will be called with err being an AbortError if the controller aborts
+                    });
+                    remove_tmp_apk_file_.stderr.on('data', (data) => {
+                        console.log("stderr remove_tmp_apk_file", data.toString())
+                        reject({err: data.toString(), err_type: 'Error'})
+                        // resolve(session_id)
+                    });
+                    remove_tmp_apk_file_.stdout.on('data', (data) => {
+                        console.log("stdout remove_tmp_apk_file - ", data.toString())
+                        // resolve(session_id)
+                    });
+                })
+                
+                await remove_tmp_apk_file.catch(err => reject(err))
+                
                 resolve(true)
-            }).catch(err => reject(err))
+            
+            })
+        })
+        await Promise.all(install_apks).catch(err => reject(err))
 
+        app_install_status(escaped_path, 9)
+
+        // Commit session
+        await new Promise((resolve, reject) => {
+            const commit_session_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-commit', session_id], {signal: abortSignal})
+            commit_session_.on('close', () => resolve(true));
+            commit_session_.stderr.on('data', (data) => {
+                console.log("data commit_session_ - ", data.toString())
+                reject({err: data.toString(), err_type: 'Error'})
+                // resolve(session_id)
+            });
+            commit_session_.on('error', (error) => {
+                if(error.name === "AbortError") {
+                    reject({err: error, err_type: 'AbortError'})
+                }
+                reject({err: error, err_type: 'Error'})
+            // This will be called with err being an AbortError if the controller aborts
+            });
+        })
+
+        //Abadon Session
+        await new Promise((resolve, reject) => {
+            const adadon_session_ = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'install-abandon', session_id], {signal: abortSignal})
+            adadon_session_.on('close', (code) => {
+                resolve(true)
+            });
+            adadon_session_.stderr.on('data', (data) => {
+                console.log("data commit_session_ - ", data.toString())
+                // reject({err: data.toString(), err_type: 'Error'})
+                resolve(true)
+                // resolve(session_id)
+            });
+            adadon_session_.on('error', (error) => {
+                if(error.name === "AbortError") {
+                    reject({err: error, err_type: 'AbortError'})
+                }
+                reject({err: error, err_type: 'Error'})
+            // This will be called with err being an AbortError if the controller aborts
+            });
+        })
+
+        // Check application is installed or not
+        await new Promise((resolve, reject) => {
+            const installed = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
+
+            installed.stderr.on('data', (data) => {
+                console.log("data installed - ", data.toString())
+                reject({err: data.toString(), err_type: 'Error'})
+                // resolve(session_id)
+            });
+            installed.stdout.on('data', (data) => {
+                console.log("data stdout installed - ", data.toString())
+                if(data) {
+                    app_install_status(escaped_path, 5)
+                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', complete: 'complete'})
+                } else {
+                    
+                    app_install_status(escaped_path, 6)
+                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
+                }
+                resolve(true)
+                // resolve(session_id)
+            });
+            installed.on('error', (error) => {
+                if(error.name === "AbortError") {
+                    reject({err: error, err_type: 'AbortError'})
+                }
+                reject({err: error, err_type: 'Error'})
+            // This will be called with err being an AbortError if the controller aborts
+            });
+        })
+        // removeTmpFolder
+        await new Promise((resolve, reject) => {
+            fs.rm(temp_dir_path, { recursive: true, force: true }, () => {
+                console.log("folder removed")
+                resolve(true)
+            })
+            // fs.rmSync(temp_dir_path, { recursive: true, force: true });
+        })
+
+    })
 }
 
 function app_install_status(escaped_path, index) {
@@ -2123,11 +2061,15 @@ async function apps_install_btn_onclick(install_btn) {
     install_btn.innerHTML = 'Cancel';
     abortController = new AbortController(); 
     const apps_list = document.querySelector('.mainWindow__center__apps_list');
+    const select_all_btn = document.querySelector('.mainWindow__center__bottom__left');
     apps_list.classList.remove('blur_apps');
     apps_list.classList.remove('installing_done');
+
     apps_list.classList.add('blur_apps');
+    select_all_btn.classList.add('in_installing_process')
     selected_apps.forEach(app => app_install_status( app.getAttribute('data-path'), 1))
-    console.log("selected_apps", selected_apps)
+    console.log("selected_apps", selected_apps, serial_nos)
+
     for(var serial_no of serial_nos) {
         for(app of selected_apps) {
             
@@ -2153,6 +2095,7 @@ async function apps_install_btn_onclick(install_btn) {
                         if(err_type === 'AbortError') {
                             abortController = null;
                             install_btn.innerHTML = 'Install';
+                            select_all_btn.classList.remove('in_installing_process')
                         }
                         const error_details = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .error_details`)
                         error_details.innerHTML = err
@@ -2173,15 +2116,23 @@ async function apps_install_btn_onclick(install_btn) {
                     if(abortController) {
                         await install_splitApks(serial_no, split_apks, apk_package_name, data_path, escaped_path, abortController.signal)
                             .catch((error) => {
+                                console.log("Errr --------->", error)
                                 const {err, err_type} = error;
                                 error_type = err_type
                                 if(err_type === 'AbortError') {
                                     abortController = null;
                                     install_btn.innerHTML = 'Install';
+                                    select_all_btn.classList.remove('in_installing_process')
+                                    app_install_status(escaped_path, 7)
+                                    add_installation_logs({app_path: data_path, app_type: 'splitapks', cancelled: 'cancelled'})
+                                } else {
+                                    
+                                    app_install_status(escaped_path, 8)
+                                    add_installation_logs({app_path: data_path, app_type: 'splitapks', error: 'error'})
+                            
                                 }
                                 const error_details = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .error_details`)
-                                error_details.innerHTML = err
-                            })
+                                error_details.innerHTML = err})
                     } else {
                         console.log('error_type', error_type)
                         if(error_type === 'AbortError') {
@@ -2200,10 +2151,17 @@ async function apps_install_btn_onclick(install_btn) {
                             if(err_type === 'AbortError') {
                                 abortController = null;
                                 install_btn.innerHTML = 'Install';
+                                select_all_btn.classList.remove('in_installing_process')
+                                app_install_status(escaped_path, 7)
+                                add_installation_logs({app_path: data_path, app_type: 'obbapk', cancelled: 'cancelled'})
+                            } else {
+                                
+                                app_install_status(escaped_path, 8)
+                                add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
+                       
                             }
                             const error_details = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .error_details`)
-                            error_details.innerHTML = err
-                        })
+                            error_details.innerHTML = err })
                     } else {
                         console.log("obbXapk error_type ---->", error_type)
                         if(error_type === 'AbortError') {
@@ -2230,6 +2188,7 @@ async function apps_install_btn_onclick(install_btn) {
     }
     apps_list.classList.remove('blur_apps');
     apps_list.classList.add('installing_done');
+    select_all_btn.classList.remove('in_installing_process')
     abortController = null;
     install_btn.innerHTML = 'Install';
 }
@@ -2244,9 +2203,6 @@ function closeWindow() {
     ipc.send("close_window")
 }
 
-ipc.on("app_version", (_, ver) => {
-    document.querySelector('.app_version').innerHTML = `v ${ver}`
-})
     
 function minimizeWindow() { ipc.send("minimize_window")}
 function resizeWindow() { ipc.send("resize_window")}
@@ -2354,7 +2310,7 @@ function connected_device_mouseWheel(evt) {
     // console.log("index", current_active_device_index, next_active_index, devices.length)
 
     const next_active_device = document.querySelector(`.mobile_device[data-index='${next_active_index}']`)
-    
+    console.log("next_active_device", next_active_device)
     mobile_device_thumbnail(next_active_device)
     current_active_device_index = next_active_device.getAttribute('data-index')
     

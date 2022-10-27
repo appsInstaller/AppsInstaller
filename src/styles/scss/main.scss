@@ -509,6 +509,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
             &:hover {
                 background-color: variables.$white_1 !important;
             }
+
             .app_update_btn,
             .app_restart_btn,
             .app_update_info {
@@ -522,6 +523,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
             }
             .app_update_icon {
                 @include flex($justifyContent: center, $alignItems: center);
+                margin-right: variables.$default_padding * .5 ;
 
                 &.updated svg {
                     width: variables.$svg_width * 1.5;
@@ -532,12 +534,9 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
                     visibility: visible;
                 }
             }
-            .app_update_text {
-                margin-left: variables.$default_padding * .5;
-            }
 
             .app_update_info {
-
+                
                 .percentage {
                     color: variables.$primaryColor;
                     font-weight: bold;
@@ -848,7 +847,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
                 // border: 1px solid red;
                 position: relative;
                 width: 60%;
-                height: calc(var(--header_height) * .8);
+                height: calc(var(--header_height) * .7);
                 border-radius: variables.$default_border_raduis * .5;
                 background-color: variables.$white_1;
                 @include flex($alignItems: center);
@@ -1016,10 +1015,15 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
                 content: "";
             }
 
+            &.blur_apps {
+                pointer-events: none;
+                
+                
+            }
+            
             &.blur_apps &__app {
                 filter: blur(1px);
             }
-
             &.installing_done &__app {
                 scale: 1;
                 filter: unset;
@@ -1386,6 +1390,9 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
                 @include flex($justifyContent: center, $alignItems: center);
                 padding-right: calc(variables.$default_padding * 2);
 
+                &.in_installing_process {
+                    pointer-events: none;
+                }
                 svg {
                     
                     width: variables.$svg_width * 1.8;

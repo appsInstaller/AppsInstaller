@@ -469,6 +469,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  margin-right: 0.375rem;
 }
 .titleBar div.titleBarLeft span.app_version .app_update_icon.updated svg {
   width: 1.5rem;
@@ -477,9 +478,6 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
 .titleBar div.titleBarLeft span.app_version .app_update_icon .loader {
   opacity: 1;
   visibility: visible;
-}
-.titleBar div.titleBarLeft span.app_version .app_update_text {
-  margin-left: 0.375rem;
 }
 .titleBar div.titleBarLeft span.app_version .app_update_info .percentage {
   color: #A40FFF;
@@ -741,7 +739,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
 .mainWindow__center__header .apps_search_bar {
   position: relative;
   width: 60%;
-  height: calc(var(--header_height) * 0.8);
+  height: calc(var(--header_height) * 0.7);
   border-radius: 0.45rem;
   background-color: rgba(255, 255, 255, 0.1);
   display: flex;
@@ -897,6 +895,9 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
 }
 .mainWindow__center__apps_list.has_apps::before {
   content: "";
+}
+.mainWindow__center__apps_list.blur_apps {
+  pointer-events: none;
 }
 .mainWindow__center__apps_list.blur_apps .mainWindow__center__apps_list__app {
   filter: blur(1px);
@@ -1208,6 +1209,9 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   justify-content: center;
   align-items: center;
   padding-right: 1.5rem;
+}
+.mainWindow__center__bottom__left.in_installing_process {
+  pointer-events: none;
 }
 .mainWindow__center__bottom__left svg {
   width: 1.8rem;
