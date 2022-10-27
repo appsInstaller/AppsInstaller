@@ -503,7 +503,49 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
         // border: 1px solid blue;
         @include flex();
 
-        span.contact_developer {
+        span.app_version {
+            cursor: auto !important;
+
+            &:hover {
+                background-color: variables.$white_1 !important;
+            }
+            .app_update_btn,
+            .app_restart_btn,
+            .app_update_info {
+                margin-left: variables.$default_padding * 2;
+            }
+
+            .app_update_btn,
+            .app_restart_btn {
+                @include Button(variables.$primaryColor, calc(variables.$default_padding * .3) variables.$default_padding, variables.$primaryColor);
+                border-radius: inherit;
+            }
+            .app_update_icon {
+                @include flex($justifyContent: center, $alignItems: center);
+
+                &.updated svg {
+                    width: variables.$svg_width * 1.5;
+                    height: variables.$svg_height * 1.5;
+                }
+                .loader {
+                    opacity: 1;
+                    visibility: visible;
+                }
+            }
+            .app_update_text {
+                margin-left: variables.$default_padding * .5;
+            }
+
+            .app_update_info {
+
+                .percentage {
+                    color: variables.$primaryColor;
+                    font-weight: bold;
+                }
+            }
+        }
+        span.contact_developer,
+        span.app_version {
             @include flex($justifyContent: center, $alignItems: center);
             // border: 1px solid red;
             margin: variables.$default_padding * .2 0 variables.$default_padding * .2 variables.$default_padding;
@@ -591,13 +633,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
     flex: 1;
     margin-top: var(--title_bar_height);
 
-    .app_version {
-        color: variables.$muteTextColor;
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        padding: variables.$default_padding * .5;
-    }
+   
     &__left,
     &__center {
         @include flex($flexDirection: column);

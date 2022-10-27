@@ -1297,6 +1297,10 @@ function remove_apps() {
     window.sessionStorage.setItem("removed_apps", JSON.stringify(removed_apps))
 }   
 
+let app_update_abortController = null;
+function download_app_update() { ipc.send('download_app_update', app_update_abortController) }
+
+function restart_app() { ipc.send('restart_app') }
 ipc.on("app_update", async (_, args) => {
     console.log('args', args)
     const key = Object.keys(args)[0];
@@ -1304,6 +1308,41 @@ ipc.on("app_update", async (_, args) => {
     console.log('key', key)
     console.log('value', value)
     const container = document.querySelector('.app_update');
+    const app_version = document.querySelector('.app_version');
+    if(key === "update_avaiable") {
+        app_version.innerHTML = `
+        <span class = 'app_update_icon'>
+            ${exclamation}
+        </span>
+        <span classs = "app_update_text">New update is available.</span>
+        <button class = 'app_update_btn' onclick = 'download_app_update()'>
+            Update
+        </button>
+        `
+    } else if(key === 'update_in_download_progress') {
+        var { percentage, total_size, transferred_size } = value;
+        app_version.innerHTML = `
+        <span class = 'app_update_icon'>
+            <span class = "loader main_svg"></span>
+        </span>
+        <span class = 'app_update_text'>
+            Updating
+        </span>
+        <span class = 'app_update_info'>
+            ${formatBytes(transferred_size)}/${formatBytes(total_size)} ( <span class = 'percentage'>${Math.round(percentage)}%</span> )
+        </span>
+        `
+    } else if(key === 'update_downloaded') {
+        app_version.innerHTML = `
+            <span class = 'app_update_icon updated'>
+                ${lineCheckedIcon}
+            </span>
+            <span classs = "app_update_text">Updated</span>
+            <button class = 'app_update_btn' onclick = 'restart_app()'>
+                Restart Now
+            </button>
+        `
+    }
 
     const p = document.createElement('p')
     p.innerHTML = `${key} | ${value}`

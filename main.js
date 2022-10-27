@@ -5,26 +5,26 @@ const EventEmitter = require('events')
 // const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
 var path = require("path")
-
-autoUpdater.setFeedURL({
-    provider: 'github',
-    repo: 'appsInstaller',
-    owner: 'appsInstaller',
-    private: false,
-    token: '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'
-})
-
-autoUpdater.updateConfigPath = path.join(
-    __dirname,
-    'app-update.yml'
-);
+// autoUpdater.setFeedURL({
+//     provider: 'github',
+//     repo: 'appsInstaller',
+//     owner: 'appsInstaller',
+//     private: false,
+//     token: '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'
+// })
+// autoUpdater.autoDownload = false
+// // autoUpdater.allowPrerelease = true
+// autoUpdater.updateConfigPath = path.join(
+//     __dirname,
+//     'app-update.yml'
+// );
 const loadingEvents = new EventEmitter()
 
-Object.defineProperty(app, 'isPackaged', {
-  get() {
-    return true;
-  }
-});
+// Object.defineProperty(app, 'isPackaged', {
+//   get() {
+//     return true;
+//   }
+// });
 let win = false
 const createWindow = (width, height) => {
     win = new BrowserWindow({
@@ -42,10 +42,12 @@ const createWindow = (width, height) => {
             devtools: true,
         }
     })
-    
     win.loadFile('index.html')
-    win.webContents.send("app_version", app.getVersion())
-
+    
+    win.webContents.on('did-finish-load', function () {
+        win.webContents.send("app_version", app.getVersion())
+        // win.webContents.send("app_update", {'update_in_download_progress': { percentage: 1.3038936054668775, total_size: 1255854, transferred_size : 16375}})
+    });
     // Our loadingEvents object listens for 'finished'
     // loadingEvents.on('finished', () => {
     //     win.loadFile('index.html')
@@ -82,6 +84,14 @@ const createWindow = (width, height) => {
     })
     
     
+    ipc.on('download_app_update', (abortSignal) => {
+        autoUpdater.downloadUpdate(abortSignal)
+    })
+
+    ipc.on('restart_app', () => {
+        app.relaunch()
+        app.exit()
+    })
 }
 
 // autoUpdater.on('checking-for-update', () => {
@@ -90,7 +100,7 @@ const createWindow = (width, height) => {
 // })
 autoUpdater.on('update-available', (info) => {
     console.log('Update available.', JSON.stringify(info));
-    win.webContents.send("app_update", {'update_avaiable': JSON.stringify(info)})
+    win.webContents.send("app_update", {'update_avaiable': true})
 })
 // autoUpdater.on('update-not-available', (info) => {
 //     console.log('Update not available.', info);
@@ -99,6 +109,7 @@ autoUpdater.on('update-available', (info) => {
 // autoUpdater.on('error', (err) => {
 //     console.log('Error in auto-updater. ' + err);
 // })
+
 autoUpdater.on('download-progress', (progressObj) => {
     let log_message = "Download speed: " + progressObj.bytesPerSecond;
     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
@@ -124,7 +135,7 @@ app.whenReady().then(() => {
     app.on("activate", () => {
         if(BrowserWindow.getAllWindows().length === 0) createWindow(width / 1.2, height / 1.2)
     })
-    autoUpdater.checkForUpdatesAndNotify();
+    // autoUpdater.checkForUpdatesAndNotify();
 })
 
 app.on("window-all-closed", () => {

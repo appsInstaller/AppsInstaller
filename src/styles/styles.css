@@ -441,7 +441,52 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   justify-content: left;
   align-items: none;
 }
-.titleBar div.titleBarLeft span.contact_developer {
+.titleBar div.titleBarLeft span.app_version {
+  cursor: auto !important;
+}
+.titleBar div.titleBarLeft span.app_version:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_btn,
+.titleBar div.titleBarLeft span.app_version .app_restart_btn,
+.titleBar div.titleBarLeft span.app_version .app_update_info {
+  margin-left: 1.5rem;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_btn,
+.titleBar div.titleBarLeft span.app_version .app_restart_btn {
+  background: #A40FFF;
+  padding: 0.225rem 0.75rem;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_btn:hover,
+.titleBar div.titleBarLeft span.app_version .app_restart_btn:hover {
+  background-color: #A40FFF;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_icon.updated svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_icon .loader {
+  opacity: 1;
+  visibility: visible;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_text {
+  margin-left: 0.375rem;
+}
+.titleBar div.titleBarLeft span.app_version .app_update_info .percentage {
+  color: #A40FFF;
+  font-weight: bold;
+}
+.titleBar div.titleBarLeft span.contact_developer,
+.titleBar div.titleBarLeft span.app_version {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -454,10 +499,12 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   -webkit-app-region: no-drag;
   user-select: none;
 }
-.titleBar div.titleBarLeft span.contact_developer:hover {
+.titleBar div.titleBarLeft span.contact_developer:hover,
+.titleBar div.titleBarLeft span.app_version:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
-.titleBar div.titleBarLeft span.contact_developer .mail_icon {
+.titleBar div.titleBarLeft span.contact_developer .mail_icon,
+.titleBar div.titleBarLeft span.app_version .mail_icon {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -466,7 +513,8 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   height: 1.2rem;
   margin-right: 0.3rem;
 }
-.titleBar div.titleBarLeft span.contact_developer .mail_icon svg {
+.titleBar div.titleBarLeft span.contact_developer .mail_icon svg,
+.titleBar div.titleBarLeft span.app_version .mail_icon svg {
   width: inherit;
   height: inherit;
 }
@@ -529,13 +577,6 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   align-items: stretch;
   flex: 1;
   margin-top: var(--title_bar_height);
-}
-.mainWindow .app_version {
-  color: #CBC7C7;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 0.375rem;
 }
 .mainWindow__left, .mainWindow__center {
   display: flex;
