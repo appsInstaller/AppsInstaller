@@ -9,7 +9,7 @@ autoUpdater.setFeedURL({
     repo: 'appsInstaller',
     owner: 'appsInstaller',
     private: false,
-    token: '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'
+    token: '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'
 })
 autoUpdater.autoDownload = false
 // autoUpdater.allowPrerelease = true
@@ -18,11 +18,11 @@ autoUpdater.autoDownload = false
 //     'app-update.yml'
 // );
 
-// Object.defineProperty(app, 'isPackaged', {
-//   get() {
-//     return true;
-//   }
-// });
+Object.defineProperty(app, 'isPackaged', {
+  get() {
+    return true;
+  }
+});
 let win = false
 
 const createWindow = (width, height) => {
