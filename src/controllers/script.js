@@ -1215,16 +1215,18 @@ async function changeAppsSearchLocation(obj) {
 
                 // unTempedApps.map(async(ua) =>
                 for(var ua of unTempedApps) {
-                    apk_path = Object.values(ua)[0]
+                    let apk_path = Object.values(ua)[0]
                     let existed_data = get_data(window.localStorage.getItem(apk_path));
-                    // console.log('existed_data', existed_data, apk_path, !Object.keys(existed_data).length > 0)
-                    if(!Object.keys(existed_data).length > 0) {
+                    console.log('existed_data', existed_data, apk_path, !Object.keys(existed_data).length > 0)
+                    if(existed_data && Object.keys(existed_data).length > 0) {
+                        keep_in_current_temped(apk_path)
+                    } else {
                         const apk_name = Object.keys(ua).toString()
                         const apk_path = Object.values(ua).toString()
                         let apk_extension = path.basename(apk_path).split('.').at(-1);
 
                         search_bar.value = apk_name;
-                        // console.log("apk_path", apk_path)
+                        console.log("apk_path", apk_path)
                         if(apk_extension == 'apk') {
                         const e =  await get_apk_info(apk_path)
                         } else {
