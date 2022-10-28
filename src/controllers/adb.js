@@ -77,11 +77,14 @@ function create_device(serial_no, index, model) {
  }
 
 async function checkDevice() {
+    const container = document.querySelector('.mainWindow__right')
+    document.querySelector(".apps_install_btn").classList.add("disabled")
+    container.innerHTML = not_connected_device
+
     setTimeout(() => 
        {
             const check_devices = spawn('adb', [ 'devices', '-l'])
             check_devices.stdout.on('data', async (data) => {
-                const container = document.querySelector('.mainWindow__right')
                 const device_container =  document.createElement('div')
                 device_container.className = 'connected_devices'
                 device_container.onwheel = () => connected_device_mouseWheel(event)
@@ -135,10 +138,7 @@ async function checkDevice() {
                     container.append(device_container)
                     mobile_device_thumbnail(current_showing_device.children[0])
                     console.log("____________________________________")
-                } else {
-                    document.querySelector(".apps_install_btn").classList.add("disabled")
-                    container.innerHTML = not_connected_device
-                }
+                } 
             });
        }
     , 1000)

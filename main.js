@@ -4,13 +4,13 @@ var path = require("path")
 const process = require('process');
 const {autoUpdater} = require("electron-updater");
 
-autoUpdater.setFeedURL({
-    provider: 'github',
-    repo: 'appsInstaller',
-    owner: 'appsInstaller',
-    private: false,
-    token: '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'
-})
+// autoUpdater.setFeedURL({
+//     provider: 'github',
+//     repo: 'appsInstaller',
+//     owner: 'appsInstaller',
+//     private: false,
+//     token: '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'
+// })
 autoUpdater.autoDownload = false
 // autoUpdater.allowPrerelease = true
 // autoUpdater.updateConfigPath = path.join(

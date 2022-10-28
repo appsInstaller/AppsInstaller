@@ -889,19 +889,21 @@ function removeFolder(escaped_folder_path) {
     // // const folder_list = document.querySelector('mainWindow__left__folders_list_folder')
     const folder = document.querySelector(`[data-id=${escaped_folder_path}]`)
     const container = document.querySelector('.mainWindow__center__apps_list');
-    const currentApps = JSON.parse( window.sessionStorage.getItem('currentApps')) || []
-    const apks_of_folders = currentApps.filter(ca => path.dirname(Object.values(ca).toString()) == window.localStorage.getItem(escaped_folder_path)) 
+    let currentApps = window.sessionStorage.getItem('currentApps') || []
+    currentApps = JSON.parse(currentApps)
     
+    const apks_of_folders = currentApps.filter(ca => path.dirname(Object.values(ca).toString()) == window.localStorage.getItem(escaped_folder_path)) 
+
     apks_of_folders.map(fa => {
         var apk_path = Object.values(fa)
-        currentApps.splice(fa, 1)
         const apk_element = document.querySelector(`[data-path=${window.localStorage.getItem(apk_path)}]`)
         if(apk_element) { apk_element.remove() }
         if(selected_apps.includes(apk_element)) {selected_apps.splice(selected_apps.indexOf(apk_element), 1)}
 
         changeSelectedAppStatus()
         apps_count_status(increase = false);
-        // a.remove()
+        
+        currentApps.slice(fa, 1)
     })
     window.sessionStorage.setItem("currentApps", JSON.stringify(currentApps))
 
@@ -919,7 +921,7 @@ function pinFolder(escaped_folder_path)  {
     folder.classList.toggle('pinned')
     
     const pinedFolders = JSON.parse( window.localStorage.getItem('pinedFolders')) || []
-    
+    console.log("pinedFolders", pinedFolders)
     folder.classList.contains('pinned') ? pinedFolders.push(escaped_folder_path) : pinedFolders.splice(pinedFolders.indexOf(escaped_folder_path), 1)
     window.localStorage.setItem("pinedFolders", JSON.stringify([...new Set(pinedFolders)]))
     cleartooltips()
