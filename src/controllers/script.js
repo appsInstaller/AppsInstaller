@@ -924,7 +924,6 @@ function pinFolder(escaped_folder_path)  {
     console.log("pinedFolders", pinedFolders)
     folder.classList.contains('pinned') ? pinedFolders.push(escaped_folder_path) : pinedFolders.splice(pinedFolders.indexOf(escaped_folder_path), 1)
     window.localStorage.setItem("pinedFolders", JSON.stringify([...new Set(pinedFolders)]))
-    cleartooltips()
 }
 
 const folderIcon = `
@@ -2320,11 +2319,9 @@ function connected_device_mouseWheel(evt) {
 
 var tooltipDelay = null;
 function cleartooltips() {
-    console.log('cleartooltips')
     document.querySelectorAll('.tooltip').forEach(t => t.remove())
 }
-function show_tooltip(icon, rect, tooltip_text, e, position) {
-    console.log('show_tooltip')
+function show_tooltip(icon, rect, tooltip_text, position) {
     let tooltip = document.querySelector('.tooltip');
     if (tooltipDelay !== null) {
         clearTimeout(tooltipDelay); // clear the previous one
@@ -2337,7 +2334,7 @@ function show_tooltip(icon, rect, tooltip_text, e, position) {
         const { x, y, width, height} = rect;
         let exist = false
         // current_showing_tooltip
-        console.log("")
+        console.log("data_id", data_id)
         if(tooltip) {
             exist = true
         } else {
@@ -2350,11 +2347,13 @@ function show_tooltip(icon, rect, tooltip_text, e, position) {
         tooltip.style.visibility = 'hidden'
         tooltip.style.opacity = '0'
 
-        if(document.querySelector(`.closeIcon.folder_action_icon[data-folder_id=${icon.getAttribute('data-folder_id')}]`)) {
+        if(document.querySelector(`[data-tooltip="${icon.getAttribute('data-tooltip')}"]`)) {
+            console.log("Element Exist")
             if(!exist) {
                 appwindow.append(tooltip)
             } 
         }
+        console.log("tooltip", tooltip)
 
         const {width: tooltip_width} = tooltip.getBoundingClientRect()
 
@@ -2385,7 +2384,7 @@ function get_window_size() {
 function window_actions_mouse_moved(event) {
     console.log('window_actions_mouse_moved')
         const { target: icon } = event;
-        show_tooltip(icon, icon.getBoundingClientRect(), icon.getAttribute('data-tooltip'), event)
+        show_tooltip(icon, icon.getBoundingClientRect(), icon.getAttribute('data-tooltip'))
 }
 function window_actions_mouse_leave(event) {
     console.log('window_actions_mouse_leave')
@@ -2398,7 +2397,7 @@ function window_actions_mouse_leave(event) {
 function folder_action_icon_mouse_move(event) {
     console.log('folder_action_icon_mouse_move')
     const { target: icon } = event;
-    show_tooltip(icon, icon.getBoundingClientRect(), icon.getAttribute('data-tooltip'), event, icon.getAttribute('data-tooltip_position'))
+    show_tooltip(icon, icon.getBoundingClientRect(), icon.getAttribute('data-tooltip'), icon.getAttribute('data-tooltip_position'))
 }
 
 function folder_action_icon_mouse_leave() {

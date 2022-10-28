@@ -620,7 +620,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
 }
 .tooltip {
     position: absolute;
-    // background-color: variables.$black_4;
+    background-color: variables.$black_2;
     padding: variables.$default_padding * .5;
     border-radius: variables.$default_border_raduis * .5;
     transition: all .1s linear;
