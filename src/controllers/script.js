@@ -391,6 +391,12 @@ const isUrl = urlString=> {
     }
 }
 
+function keep_in_current_temped(apk_path) {
+    const currentTemped = JSON.parse(window.sessionStorage.getItem('currentTemped')) || []
+    if(!currentTemped.map(c => c.toString()).includes(apk_path)) {
+        window.sessionStorage.setItem('currentTemped',JSON.stringify([...new Set([...currentTemped, apk_path])]))
+    }
+}
 function keep_in_current_Apps(apk_name, apk_path) {
     console.log("keep_in_current_Apps")
     const currentApps = JSON.parse(window.sessionStorage.getItem('currentApps')) || []
@@ -1134,6 +1140,7 @@ async function add_apks_from_folder(active_dir, keepInStorage = false) {
             // console.log("apk_path", apk_path, data)
 
             if(data && Object.keys(data).length > 0) {
+                keep_in_current_temped(apk_path)
                 add_apk_to_html(apk_path,formatted_path, data, active_dir)
                 apps_count_status()
                 continue
@@ -1208,16 +1215,21 @@ async function changeAppsSearchLocation(obj) {
 
                 // unTempedApps.map(async(ua) =>
                 for(var ua of unTempedApps) {
-                    const apk_name = Object.keys(ua).toString()
-                    const apk_path = Object.values(ua).toString()
-                    let apk_extension = path.basename(apk_path).split('.').at(-1);
+                    apk_path = Object.values(ua)[0]
+                    let existed_data = get_data(window.localStorage.getItem(apk_path));
+                    // console.log('existed_data', existed_data, apk_path, !Object.keys(existed_data).length > 0)
+                    if(!Object.keys(existed_data).length > 0) {
+                        const apk_name = Object.keys(ua).toString()
+                        const apk_path = Object.values(ua).toString()
+                        let apk_extension = path.basename(apk_path).split('.').at(-1);
 
-                    search_bar.value = apk_name;
-                    console.log("apk_path", apk_path)
-                    if(apk_extension == 'apk') {
-                       const e =  await get_apk_info(apk_path)
-                    } else {
-                        const e2 = await get_xapk_info(apk_path)
+                        search_bar.value = apk_name;
+                        // console.log("apk_path", apk_path)
+                        if(apk_extension == 'apk') {
+                        const e =  await get_apk_info(apk_path)
+                        } else {
+                            const e2 = await get_xapk_info(apk_path)
+                        }
                     }
                     search_bar_status_icon__indexing_apps.innerHTML =  `Indexing(${unTempedApps.indexOf(ua) + 1}/${unTempedApps.length})`
                 }
@@ -1228,7 +1240,7 @@ async function changeAppsSearchLocation(obj) {
                 search_bar.disabled = false
                 search_bar.classList.remove('disabled')
                 search_bar_status_icon.firstElementChild.innerHTML = searchIcon 
-                console.log("loop end -----------------> ")
+                // console.log("loop end -----------------> ")
         }
     }
     // console.log("Seted ----------------------------> ")
