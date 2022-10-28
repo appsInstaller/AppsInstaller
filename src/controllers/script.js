@@ -1749,7 +1749,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 setTimeout(() => resolve(true), 700)
             })
             // fs.rmSync(temp_dir_path, { recursive: true, force: true });
-        })
+        }).then(() => resolve("Done"))
     })
 
 }
@@ -2020,7 +2020,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                 resolve(true)
             })
             // fs.rmSync(temp_dir_path, { recursive: true, force: true });
-        })
+        }).then(() => resolve("Done"))
 
     })
 }
