@@ -745,8 +745,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
                     padding: 0;
                 }
                 &__center {
-                    @include flex($alignItems: flex-end, $justifyContent: center);
-                    
+                    margin-top: 2px;
                 }
                 &__left {
                     // border: 1px solid green;

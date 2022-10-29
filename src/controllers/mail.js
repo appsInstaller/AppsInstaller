@@ -4,17 +4,18 @@ const { google } = require('googleapis')
 const CLIENT_ID = '1062349257511-6dt9ucg5rb9q0qcvs8asllsv1fhersls.apps.googleusercontent.com';
 const CLIENT_SECRET = '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'
 const REDIRECT_URL = 'https://developers.google.com/oauthplayground'
-const REFRESH_TOKEN = '1//04dEBe0pcohpmCgYIARAAGAQSNwF-L9IryZILpJ69rrXaKVfjGYPJ-OPwoLhxsJ-TYA5EC-ZadxCO8MuQhvbmKL3NDQHTRMnGmUw'
+const REFRESH_TOKEN = "1//04yehccb-E6eUCgYIARAAGAQSNwF-L9IrPU1QFba1CmvqfuAIol60WSkwEjaiSzSZI0-J4qW788-o90-M_lNCSr9NT6li9k3KWaA"
 // async..await is not allowed in global scope, must use a wrapper
 
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 oAuth2Client.setCredentials({refresh_token: REFRESH_TOKEN})
 
 function sendMail(err, type, files = []) {
+  console.log("mail => ", err, type)
   return new Promise(async (resolve, reject) => {
     // let accessToken = false
     try {
-      const accessToken = await oAuth2Client.getAccessToken()
+      const accessToken = await oAuth2Client.getAccessToken().catch(err => reject(err))
       console.log('accessToken', accessToken)
         // create reusable transporter object using the default SMTP transport
       let transporter = nodemailer.createTransport({

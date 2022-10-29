@@ -112,9 +112,9 @@ autoUpdater.on('update-not-available', (info) => {
     console.log('Update not available.', info);
     win.webContents.send("app_version", app.getVersion())
 })
-// autoUpdater.on('error', (err) => {
-//     console.log('Error in auto-updater. ' + err);
-// })
+autoUpdater.on('error', (err) => {
+    win.webContents.send("app_version", app.getVersion())
+})
 
 autoUpdater.on('download-progress', (progressObj) => {
     win.webContents.send("app_update", {'update_in_download_progress': { percentage: progressObj.percent, total_size: progressObj.total, transferred_size : progressObj.transferred}})
@@ -137,7 +137,7 @@ app.whenReady().then(() => {
     app.on("activate", () => {
         if(BrowserWindow.getAllWindows().length === 0) createWindow(width / 1.2, height / 1.2)
     })
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdatesAndNotify()
 })
 
 app.on("window-all-closed", () => {

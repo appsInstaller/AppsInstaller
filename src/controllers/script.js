@@ -1059,7 +1059,7 @@ function add_folder_to_html(folder_name, folder_path, active, pinned = "") {
     const folder = document.createElement("div");
     folder.className = `mainWindow__left__folders_list_folder ${escaped_folder_path} ${active ? "active" : " "} ${pinned}`;
     folder.setAttribute("data-id", escaped_folder_path)
-
+    
     const folder_left = document.createElement('div');
     folder_left.className = 'mainWindow__left__folders_list_folder__left';
     folder_left.onclick = () => folder_clicked(folder_path, document.querySelector(`[data-id=${escaped_folder_path}]`).classList.contains('active') ? "unactive" : "active")  
@@ -1068,12 +1068,12 @@ function add_folder_to_html(folder_name, folder_path, active, pinned = "") {
         <span class = "folder_icon">
             ${folderIcon}
         </span>
-        <p class = ${shorthanded ? "shorthanded" : ""} data-full_name = "${folder_name}" onmouseover="show_full_folder_name(this, true)" onmouseout="show_full_folder_name(this, false)">${shorthanded_name}</p>
+        <p class = ${shorthanded ? "shorthanded" : ""} data-full_name = "${folder_name}" onmouseenter="show_full_folder_name(this, true)" onmouseleave="show_full_folder_name(this, false)">${shorthanded_name}</p>
     `
 
     const folder_center = document.createElement('div');
     folder_center.className = 'mainWindow__left__folders_list_folder__center';
-    folder_center.innerHTML =  loadingIcon
+    folder_center.innerHTML =  ''
 
     const folder_right = document.createElement('div');
     folder_right.className = 'mainWindow__left__folders_list_folder__right';
@@ -1121,13 +1121,13 @@ function apps_count_status(increase = true, label = 'Total Apps :  ', app_type =
 }
 
 async function add_apks_from_folder(active_dir, keepInStorage = false) {
-    console.log('add_apks_from_folder')
     const apks = listdir(active_dir);
     const current_folder = document.querySelector(`[data-id=${window.localStorage.getItem(active_dir)}]`);
+    console.log('apks', apks)
     current_folder.classList.add("disabled")
     const current_folder_center = current_folder.children.item(1);
-
-    current_folder_center.firstElementChild.classList.add('active') // Show loading
+    console.log("current_folder_center", current_folder_center)
+    current_folder_center.innerHTML = `0/${apks.length}`;
 
     for (var apk of apks) {
         const apk_path = path.join(active_dir, apk);
@@ -1156,10 +1156,11 @@ async function add_apks_from_folder(active_dir, keepInStorage = false) {
                 add_apk_to_html(apk_path,formatted_path, await get_xapk_info(apk_path), active_dir)
             }
             apps_count_status()
+            current_folder_center.innerHTML = `${apks.indexOf(apk) + 1}/${apks.length}`;
         }
     }
 
-    current_folder_center.firstElementChild.classList.remove('active')
+    current_folder_center.innerHTML = "";
     current_folder.classList.remove("disabled")
 }
 
@@ -1400,15 +1401,15 @@ ipc.on("dirPaths", async (_, args) => {
     }
 })
 
-function add_installation_logs({app_path, app_type, data, complete = false, cancelled = false, error = false}) {
-    const installation_logs = document.querySelector('.installation_logs');
-    console.log('add_installation_logs')
+function add_installation_logs({serial_no, app_path, app_type, data, complete = false, cancelled = false, error = false}) {
+    const installation_logs = document.querySelector(`.installation_logs__${serial_no}`);
+    console.log('add_installation_logs ------------', `.installation_logs__${serial_no}`)
     // console.log("installation_logs", app_path, app_type, data, complete, cancelled, error)
     var app_name = get_app_label(path.basename(app_path))
     var escaped_app_path = `${window.localStorage.getItem(app_path)}`
     let max_length = 10;
-    let div = document.querySelector(`.installation_logs div.${escaped_app_path}`)
-
+    let div = document.querySelector(`.installation_logs__${serial_no} div.${escaped_app_path}`)
+    console.log("div", div)
     let status = complete || cancelled || error;
     
     let statusIcons = {
@@ -1544,41 +1545,43 @@ function add_installation_logs({app_path, app_type, data, complete = false, canc
 }
 
 
-function install_apk(serial_no, apk_path, escaped_path, abortSignal) {
+function install_apk(serial_no, apk_path, escaped_path, abortSignal, device_name) {
     console.log('install_apk')
     return new Promise((resolve, reject) => {
         const more_info = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .app_more_info`);
         more_info.classList.add('show_apk_size')
 
         app_install_status(escaped_path, 2)
-        add_installation_logs({app_path: apk_path, app_type: 'apk'})
+        add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk'})
         
         const install_process = spawn('adb', ['-s', serial_no, 'install', '-r', apk_path], {signal: abortSignal})
         
         install_process.stdout.on('data', (data) => {
-            if(data.toString().trim() == 'Success') {
-                app_install_status(escaped_path, 3)
-                add_installation_logs({app_path: apk_path, app_type: 'apk', complete: 'complete'})
-                setTimeout(() => resolve(true), 700)
-            }
+            // if(data.toString().trim() == 'Succes') {
+            app_install_status(escaped_path, 3)
+            add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk', complete: 'complete'})
+            setTimeout(() => resolve(true), 700)
+            // } else {
+            //     reject({err: `Success Message -> ${data.toString()}`, err_type: 'Error'})
+            // }
         });
 
         
         install_process.stderr.on('data', (data) => {
             app_install_status(escaped_path, 6)
-            add_installation_logs({app_path: apk_path, app_type: 'apk', error: 'error'})
+            add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk', error: 'error'})
             reject({err: data.toString(), err_type: 'Error'})
         });
 
         install_process.on('error', (error) => {
             if(error.name === "AbortError") {
                 app_install_status(escaped_path, 5)
-                add_installation_logs({app_path: apk_path, app_type: 'apk', cancelled: 'cancelled'})
+                add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk', cancelled: 'cancelled'})
                 reject({err: error, err_type: 'AbortError'})
                 return
             }
             app_install_status(escaped_path, 6)
-            add_installation_logs({app_path: apk_path, app_type: 'apk', error: 'error'})
+            add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk', error: 'error'})
             reject({err: error, err_type: 'Error'})
         // This will be called with err being an AbortError if the controller aborts
         });
@@ -1603,7 +1606,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
         more_info.classList.add('show_apk_size')
 
         app_install_status(escaped_path, 2)
-        add_installation_logs({app_path: data_path, app_type: 'obbapk'})
+        add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk'})
 
         let temp_dir_path = path.join(tmpPath, path.basename(data_path).split(".").at(0))
         let obb_install_path = false
@@ -1627,7 +1630,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                     if(code === 0) {
                         console.log('file Extracted', file_name)
                         currentExtractedFiles += 1
-                        add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles}})
+                        add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles}})
                         resolve(true)
                     }
                 });
@@ -1660,7 +1663,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
 
             // Go to Pushing Obbs status
             app_install_status(escaped_path, 3)
-            add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  0}})
+            add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  0}})
         })
 
         const pushing_obbs = expansions.map(obb => {
@@ -1674,7 +1677,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                     if(code === 0) {
                         console.log('obb PUshed', obb_name)
                         currentPushedObbs += 1
-                        add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {
+                        add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', data: {
                                 files: files.length, current_file: files.length,
                                 total_obbs: expansions.length, 
                                 current_pushing_obb: currentPushedObbs,
@@ -1689,7 +1692,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                   });
                 pushing_process.stdout.on('data', (data) => {
                     console.log("data", data.toString(),  data.toString().substr(data.indexOf('[') + 1, data.indexOf(']') - 1).trim())
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs , current_pushing_percent: data.toString().substr(data.indexOf('[') + 1, data.indexOf(']') - 1).trim()}})
+                    add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs , current_pushing_percent: data.toString().substr(data.indexOf('[') + 1, data.indexOf(']') - 1).trim()}})
                 });
                 pushing_process.on('error', (error) => {
                    console.log("error pushing_process", error)
@@ -1705,7 +1708,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
         })
         await Promise.all(pushing_obbs).then(() => {
             app_install_status(escaped_path, 4)
-            add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs, apks: split_apks.length, current_install_apk: 0}})
+            add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs, apks: split_apks.length, current_install_apk: 0}})
         }).catch(err => reject(err))
 
         const install_apks = split_apks.map(apk => {
@@ -1718,7 +1721,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                     if(code === 0) {
                         currentInstalledApks += 1
                         console.log('app installed', apk_name)
-                        add_installation_logs({app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs, apks: split_apks.length, current_install_apk: currentInstalledApks}})
+                        add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', data: {files: files.length, current_file:  currentExtractedFiles, total_obbs: expansions.length, current_pushing_obb:  currentPushedObbs, apks: split_apks.length, current_install_apk: currentInstalledApks}})
                         resolve(true)
                     }
                 });
@@ -1747,11 +1750,11 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 console.log("installed", data)
                 if(data) {
                     app_install_status(escaped_path, 5)
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', complete: 'complete'})
+                    add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', complete: 'complete'})
                 } else {
                     
                     app_install_status(escaped_path, 6)
-                    add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
+                    add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', error: 'error'})
                 }
                 resolve(true)
             });
@@ -1775,7 +1778,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
         more_info.classList.add('show_apk_size')
         
         app_install_status(escaped_path, 2)
-        add_installation_logs({app_path: apk_path, app_type: 'splitapks'})
+        add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks'})
         let temp_dir_path = path.join(tmpPath, path.basename(apk_path).split(".").at(0))
         let apk_infos = {};
         let extracted_apks_count = 0
@@ -1787,7 +1790,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
         }
 
         app_install_status(escaped_path, 3)
-        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: 0}})
+        add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: 0}})
 
         const extract_apks = split_apks.map(f => {
             return new Promise((resolve, reject) => {
@@ -1801,7 +1804,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                     console.log("extracting_app close",  code)
                     if(code === 0) {
                         extracted_apks_count += 1
-                        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count}})
+                        add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count}})
                         
                         fs.stat(temp_apk_path, (_, stats) => {
                             apk_infos[apk_name] = stats.size
@@ -1835,7 +1838,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
         var apks = fs.readdirSync(temp_dir_path);
 
         app_install_status(escaped_path, 4)
-        add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
+        add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
 
         let total_size_in_Bytes = Object.values(apk_infos).reduce((t, c) => t + parseInt(c), 0)
 
@@ -1925,7 +1928,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                         console.log("close remove_tmp_apk_file_ - ", code)
                         if(code === 0) {
                             installed_apk_count += 1
-                            add_installation_logs({app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
+                            add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks', data: {extract_apks: split_apks.length, current_extract_apk: extracted_apks_count, install_apks: apks.length, current_install_apk: installed_apk_count}})
                             resolve(true)
                         }
                     });
@@ -1995,12 +1998,20 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                 reject({err: error, err_type: 'Error'})
             // This will be called with err being an AbortError if the controller aborts
             });
-        })
-
+        }).catch(err => reject(err))
+        console.log("Check application is installed or not")
         // Check application is installed or not
         await new Promise((resolve, reject) => {
             const installed = spawn('adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
-
+            console.log("==>", `adb -s ${serial_no} shell pm list packages -3 | grep "${apk_package_name}"`)
+            installed.on('close', (code) => {
+                console.log("Installed close", code)
+                if(code === 0) {
+                    resolve(true)
+                } else {
+                    reject({err: 'App installation fail with code ' + code, err_type: 'Error'})
+                }
+            })
             installed.stderr.on('data', (data) => {
                 console.log("data installed - ", data.toString())
                 reject({err: data.toString(), err_type: 'Error'})
@@ -2010,23 +2021,24 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                 console.log("data stdout installed - ", data.toString())
                 if(data) {
                     app_install_status(escaped_path, 5)
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', complete: 'complete'})
+                    add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks', complete: 'complete'})
                 } else {
                     
                     app_install_status(escaped_path, 6)
-                    add_installation_logs({app_path: apk_path, app_type: 'splitapks', error: 'error'})
+                    add_installation_logs({serial_no, app_path: apk_path, app_type: 'splitapks', error: 'error'})
                 }
                 resolve(true)
                 // resolve(session_id)
             });
             installed.on('error', (error) => {
+                console.log("installed error", error)
                 if(error.name === "AbortError") {
                     reject({err: error, err_type: 'AbortError'})
                 }
                 reject({err: error, err_type: 'Error'})
             // This will be called with err being an AbortError if the controller aborts
             });
-        })
+        }).catch(err => reject(err))
         // removeTmpFolder
         await new Promise((resolve, reject) => {
             fs.rm(temp_dir_path, { recursive: true, force: true }, () => {
@@ -2040,18 +2052,20 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
 }
 
 function app_install_status(escaped_path, index) {
-    console.log('app_install_status')
+    console.log('app_install_status', escaped_path, index)
     const statusS = document.querySelectorAll(`[data-path=${escaped_path}] .status`);
     const wrapper = document.querySelector(`[data-path=${escaped_path}] .status_wrapper`)
     // const { currentTarget: target } = e;
-    const { height: wrapper_height } = wrapper.getBoundingClientRect()
+    if(wrapper) {
+        const { height: wrapper_height } = wrapper.getBoundingClientRect()
 
-    statusS.forEach(status => {
-        Object.assign(status.style, {
-            // transition: index === 0  ? "none" :  "transform cubic-bezier(1,-0.5, 0.58, 1) 200ms" ,
-            transform: `translateY(-${wrapper_height * index }px)`
+        statusS.forEach(status => {
+            Object.assign(status.style, {
+                // transition: index === 0  ? "none" :  "transform cubic-bezier(1,-0.5, 0.58, 1) 200ms" ,
+                transform: `translateY(-${wrapper_height * index }px)`
+            })
         })
-    })
+    }
 }
 
 function sleep(delay) {
@@ -2064,7 +2078,7 @@ let error_type = 'Error'
 
 async function apps_install_btn_onclick(install_btn) {
     console.log('apps_install_btn_oonclick')
-    const serial_nos = [...document.querySelectorAll('.mobile_device.selected')].map(md => md.getAttribute('data-serial_no'))
+    const devices = [...document.querySelectorAll('.mobile_device.selected')]
 
     if ( abortController ) {
         abortController.abort(); // 5
@@ -2083,9 +2097,11 @@ async function apps_install_btn_onclick(install_btn) {
     apps_list.classList.add('blur_apps');
     select_all_btn.classList.add('in_installing_process')
     selected_apps.forEach(app => app_install_status( app.getAttribute('data-path'), 1))
-    console.log("selected_apps", selected_apps, serial_nos)
 
-    for(var serial_no of serial_nos) {
+    for(var device of devices) {
+        const serial_no = device.getAttribute('data-serial_no')
+        const device_name = device.getAttribute('data-name')
+        console.log("===>", serial_no, device_name, selected_apps)
         for(app of selected_apps) {
             
             if(abortController) {
@@ -2103,8 +2119,9 @@ async function apps_install_btn_onclick(install_btn) {
 
             if(apk_type === '.apk') {
                 if(abortController) {
-                    await install_apk(serial_no, data_path, escaped_path, abortController.signal)
+                    await install_apk(serial_no, data_path, escaped_path, abortController.signal, device_name)
                     .catch((error) => {
+                        console.log("error", error)
                         const {err, err_type} = error;
                         error_type = err_type
                         if(err_type === 'AbortError') {
@@ -2139,11 +2156,11 @@ async function apps_install_btn_onclick(install_btn) {
                                     install_btn.innerHTML = 'Install';
                                     select_all_btn.classList.remove('in_installing_process')
                                     app_install_status(escaped_path, 7)
-                                    add_installation_logs({app_path: data_path, app_type: 'splitapks', cancelled: 'cancelled'})
+                                    add_installation_logs({serial_no, app_path: data_path, app_type: 'splitapks', cancelled: 'cancelled'})
                                 } else {
                                     
                                     app_install_status(escaped_path, 8)
-                                    add_installation_logs({app_path: data_path, app_type: 'splitapks', error: 'error'})
+                                    add_installation_logs({serial_no, app_path: data_path, app_type: 'splitapks', error: 'error'})
                             
                                 }
                                 const error_details = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .error_details`)
@@ -2168,11 +2185,11 @@ async function apps_install_btn_onclick(install_btn) {
                                 install_btn.innerHTML = 'Install';
                                 select_all_btn.classList.remove('in_installing_process')
                                 app_install_status(escaped_path, 7)
-                                add_installation_logs({app_path: data_path, app_type: 'obbapk', cancelled: 'cancelled'})
+                                add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', cancelled: 'cancelled'})
                             } else {
                                 
                                 app_install_status(escaped_path, 8)
-                                add_installation_logs({app_path: data_path, app_type: 'obbapk', error: 'error'})
+                                add_installation_logs({serial_no, app_path: data_path, app_type: 'obbapk', error: 'error'})
                        
                             }
                             const error_details = document.querySelector(`[data-id=${app.getAttribute('data-id')}] .error_details`)

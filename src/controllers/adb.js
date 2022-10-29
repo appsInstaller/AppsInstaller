@@ -35,6 +35,7 @@ function create_device(serial_no, index, model) {
             const mobile_device = document.createElement('div');
             mobile_device.className = `mobile_device ${serial_no} current_showing selected`
             mobile_device.setAttribute('data-serial_no', serial_no)
+            mobile_device.setAttribute('data-name', `${brand} ${model}`)
             mobile_device.setAttribute('data-index', index)
             mobile_device.onclick = () => show_clicked_device(serial_no)
 
@@ -56,7 +57,7 @@ function create_device(serial_no, index, model) {
                         <span class = "model">${model}</span>
                         <span class = "android_version">( Android ${android_version} )</span>
                     </div>
-                    <div class = "installation_logs">
+                    <div class = "installation_logs installation_logs__${serial_no}">
                     </div>
                 </div>
             `

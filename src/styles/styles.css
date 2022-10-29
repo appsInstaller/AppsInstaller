@@ -653,10 +653,7 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   padding: 0;
 }
 .mainWindow__left__folders_list_folder__center {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-end;
+  margin-top: 2px;
 }
 .mainWindow__left__folders_list_folder__left {
   flex: 8;
