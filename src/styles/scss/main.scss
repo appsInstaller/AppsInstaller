@@ -997,6 +997,9 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
             overflow-y: auto;
             overflow-x: hidden;
 
+            &::-webkit-scrollbar {
+                width: 8px;     /* width of vertical scrollbar */
+            }
             &::before {
                 content: "Select Folder(s) to view Apps.";
                 position: absolute;

@@ -878,6 +878,9 @@ input[type=file]::-webkit-file-upload-button { /* chromes and blink button */
   overflow-y: auto;
   overflow-x: hidden;
 }
+.mainWindow__center__apps_list::-webkit-scrollbar {
+  width: 8px; /* width of vertical scrollbar */
+}
 .mainWindow__center__apps_list::before {
   content: "Select Folder(s) to view Apps.";
   position: absolute;

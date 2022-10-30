@@ -549,7 +549,7 @@ function add_apk_to_html(apk_path, formatted_path, { apk_name,  apk_package_name
         statusItem.innerHTML = parseInt(index) === 0 ? `${formatBytes(apk_total_size)}` : status
         if(status === 'Error') {
             statusItem.onclick = (e) => show_error(e, data_id)
-            statusItem.innerHTML = `${status} <span class = "exclamation_icon">${exclamation}</span>`
+            // statusItem.innerHTML = `${status} <span class = "exclamation_icon">${exclamation}</span>`
         }
         statusWrapper.append(statusItem)
     }
@@ -1554,9 +1554,10 @@ function install_apk(serial_no, apk_path, escaped_path, abortSignal, device_name
         app_install_status(escaped_path, 2)
         add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk'})
         
-        const install_process = spawn('./adb_files/adb', ['-s', serial_no, 'install', '-r', apk_path], {signal: abortSignal})
+        const install_process = spawn('./resources/adb_files/adb', ['-s', serial_no, 'install', '-r', apk_path], {signal: abortSignal})
         
         install_process.stdout.on('data', (data) => {
+            console.log("apk install data => ", data.toString())
             // if(data.toString().trim() == 'Succes') {
             app_install_status(escaped_path, 3)
             add_installation_logs({serial_no, app_path: apk_path, app_type: 'apk', complete: 'complete'})
@@ -1651,7 +1652,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
         await Promise.all(extract_files).catch(err => reject(err))
 
         const createTmpFolder = new Promise((resolve, reject) => {
-            const create_dir = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'mkdir', `sdcard/${obb_install_path}`])
+            const create_dir = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'mkdir', `sdcard/${obb_install_path}`])
             create_dir.on('close', (code) => {
                 if(code === 0) {
                     resolve(true)
@@ -1672,7 +1673,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 let obb_name = path.basename(file)
                 let temp_obb_path = path.join(temp_dir_path, obb_name)
 
-                const pushing_process = spawn('./adb_files/adb', ['-s', serial_no, 'push', temp_obb_path, `sdcard/${obb_install_path}/${obb_name}`], {signal: abortSignal})
+                const pushing_process = spawn('./resources/adb_files/adb', ['-s', serial_no, 'push', temp_obb_path, `sdcard/${obb_install_path}/${obb_name}`], {signal: abortSignal})
                 pushing_process.on('close', (code) => {
                     if(code === 0) {
                         console.log('obb PUshed', obb_name)
@@ -1716,7 +1717,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
                 const apk_name = apk.file
                 const temp_apk_folder = path.join(temp_dir_path, apk_name)
 
-                const installing_process = spawn('./adb_files/adb', ['-s', serial_no, 'install', '-r', temp_apk_folder], {signal: abortSignal})
+                const installing_process = spawn('./resources/adb_files/adb', ['-s', serial_no, 'install', '-r', temp_apk_folder], {signal: abortSignal})
                 installing_process.on('close', (code) => {
                     if(code === 0) {
                         currentInstalledApks += 1
@@ -1745,7 +1746,7 @@ function install_obbXapk(serial_no, split_apks, expansions, apk_package_name, da
 
         // Check application is installed or not
         await new Promise((resolve, reject) => {
-            const installed = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
+            const installed = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
             installed.stdout.on('data', (data) => {
                 console.log("installed", data)
                 if(data) {
@@ -1843,7 +1844,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
         let total_size_in_Bytes = Object.values(apk_infos).reduce((t, c) => t + parseInt(c), 0)
 
         let create_session = new Promise((resolve, reject) => {
-            let create_session_ = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-create', '-S', total_size_in_Bytes], {signal: abortSignal})
+            let create_session_ = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-create', '-S', total_size_in_Bytes], {signal: abortSignal})
             create_session_.stdout.on('data', (data) => {
                 console.log('create_session_ stdout', data)
                 var session_id = data.toString().match(/[0-9]/g).join("")
@@ -1867,7 +1868,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                 const apkSize = apk_infos[apk]
                 // `adb -s ${serial_no} push "${apkPath}" /data/local/tmp`
                 let push_apk = new Promise((resolve) => {
-                    const push_apk_ = spawn('./adb_files/adb', ['-s', serial_no, 'push', apkPath, '/data/local/tmp'], {signal: abortSignal})
+                    const push_apk_ = spawn('./resources/adb_files/adb', ['-s', serial_no, 'push', apkPath, '/data/local/tmp'], {signal: abortSignal})
                     push_apk_.on('close', () => {
                         console.log("push_apk_ close")
                         resolve(true) });
@@ -1893,7 +1894,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                 await push_apk.catch(err => reject(err))
 
                 let install_apk = new Promise((resolve, reject) => {
-                    const install_apk_ = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-write', '-S', apkSize, session_id, apks.indexOf(apk), `'/data/local/tmp/${apk}'`], {signal: abortSignal})
+                    const install_apk_ = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-write', '-S', apkSize, session_id, apks.indexOf(apk), `'/data/local/tmp/${apk}'`], {signal: abortSignal})
 
                     install_apk_.on('error', (error) => {
                         console.log("error install_apk", error, error.name)
@@ -1923,7 +1924,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
                 
                 // shell rm /data/local/tmp/${apks[apk_index]}`
                 let remove_tmp_apk_file = new Promise((resolve, reject) => {
-                    const remove_tmp_apk_file_ = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'rm', `'/data/local/tmp/${apk}'`], {signal: abortSignal})
+                    const remove_tmp_apk_file_ = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'rm', `'/data/local/tmp/${apk}'`], {signal: abortSignal})
                     remove_tmp_apk_file_.on('close', (code) => {
                         console.log("close remove_tmp_apk_file_ - ", code)
                         if(code === 0) {
@@ -1963,7 +1964,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
 
         // Commit session
         await new Promise((resolve, reject) => {
-            const commit_session_ = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-commit', session_id], {signal: abortSignal})
+            const commit_session_ = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-commit', session_id], {signal: abortSignal})
             commit_session_.on('close', () => resolve(true));
             commit_session_.stderr.on('data', (data) => {
                 console.log("data commit_session_ - ", data.toString())
@@ -1981,7 +1982,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
 
         //Abadon Session
         await new Promise((resolve, reject) => {
-            const adadon_session_ = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-abandon', session_id], {signal: abortSignal})
+            const adadon_session_ = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'install-abandon', session_id], {signal: abortSignal})
             adadon_session_.on('close', (code) => {
                 resolve(true)
             });
@@ -2002,7 +2003,7 @@ async function install_splitApks(serial_no, split_apks, apk_package_name, apk_pa
         console.log("Check application is installed or not")
         // Check application is installed or not
         await new Promise((resolve, reject) => {
-            const installed = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
+            const installed = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'pm', 'list', 'packages', '-3', '|', 'grep', apk_package_name], {signal: abortSignal})
             installed.on('close', (code) => {
                 console.log("Installed close", code)
                 if(code === 0) {

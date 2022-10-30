@@ -22,7 +22,7 @@ const not_connected_device = `
 function create_device(serial_no, index, model) {
     return new Promise(resolve => {
         let result = ''
-        const process = spawn('./adb_files/adb', ['-s', serial_no, 'shell', 'getprop', '|', 'grep', '-e', "ro.product.vendor", '-e', 'version.release'], { encoding : 'utf8' })
+        const process = spawn('./resources/adb_files/adb', ['-s', serial_no, 'shell', 'getprop', '|', 'grep', '-e', "ro.product.vendor", '-e', 'version.release'], { encoding : 'utf8' })
         process.on('close', (code) => {
             console.log("data", result)
             const brand = result.split('\n').filter(f => f.split(':').at(0).search(/manufacturer/gi) > 0)[0].split(":").at(-1).replace(/\[|\]|\r/g, "").trim()
@@ -84,7 +84,7 @@ async function checkDevice() {
 
     setTimeout(() => 
        {
-            const check_devices = spawn('./adb_files/adb', [ 'devices', '-l'])
+            const check_devices = spawn('./resources/adb_files/adb', [ 'devices', '-l'])
             check_devices.stdout.on('data', async (data) => {
                 const device_container =  document.createElement('div')
                 device_container.className = 'connected_devices'
